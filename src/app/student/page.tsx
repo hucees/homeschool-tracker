@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Brand } from "@/components/brand";
 import { StatusPill } from "@/components/status-pill";
 import { requireStudent } from "@/lib/auth";
@@ -42,6 +43,7 @@ type Assignment = {
   assigned_date: string;
   due_date: string | null;
   status: string;
+  curriculum_instance_number: number;
 };
 
 type Grade = {
@@ -52,6 +54,11 @@ type Grade = {
   letter_grade: string | null;
   teacher_feedback: string | null;
   graded_at: string;
+};
+
+type OnlineAssessment = {
+  student_assignment_id: string;
+  question_count: number;
 };
 
 function firstRelation<T>(value: unknown): T | null {
@@ -85,6 +92,7 @@ export default async function StudentPortalPage({
   let lessons: Lesson[] = [];
   let assignments: Assignment[] = [];
   let grades: Grade[] = [];
+  let onlineAssessments: OnlineAssessment[] = [];
 
   if (enrollmentIds.length) {
     const { data: todayRecord } = await supabase
@@ -94,7 +102,7 @@ export default async function StudentPortalPage({
       .eq("record_date", recordDate)
       .maybeSingle();
 
-    const [completedResult, lessonsResult, assignmentResult] = await Promise.all([
+    const [completedResult, lessonsResult, assignmentResult, onlineResult] = await Promise.all([
       supabase
         .from("daily_learning_entries")
         .select("id,student_course_enrollment_id,lesson_id,status,minutes_spent,student_note")
@@ -109,16 +117,18 @@ export default async function StudentPortalPage({
         .order("sequence"),
       supabase
         .from("student_assignments")
-        .select("id,student_course_enrollment_id,title,assignment_type,max_points,assigned_date,due_date,status")
+        .select("id,student_course_enrollment_id,title,assignment_type,max_points,assigned_date,due_date,status,curriculum_instance_number")
         .eq("student_id", student.id)
         .in("student_course_enrollment_id", enrollmentIds)
         .neq("status", "cancelled")
         .order("assigned_date", { ascending: false }),
+      supabase.rpc("get_my_online_assessments"),
     ]);
 
     completedEntries = (completedResult.data ?? []) as Entry[];
     lessons = (lessonsResult.data ?? []) as Lesson[];
     assignments = (assignmentResult.data ?? []) as Assignment[];
+    onlineAssessments = (onlineResult.data ?? []) as OnlineAssessment[];
 
     if (todayRecord?.id) {
       const { data } = await supabase
@@ -145,6 +155,7 @@ export default async function StudentPortalPage({
   const todayByEnrollment = new Map(todayEntries.map((entry) => [entry.student_course_enrollment_id, entry]));
   const gradeByAssignment = new Map(grades.map((grade) => [grade.student_assignment_id, grade]));
   const enrollmentById = new Map(enrollments.map((enrollment) => [enrollment.id, enrollment]));
+  const onlineByAssignment = new Map(onlineAssessments.map((item) => [item.student_assignment_id, Number(item.question_count)]));
 
   return (
     <main className="min-h-screen bg-[#f7f8fb] px-5 py-6">
@@ -223,6 +234,37 @@ export default async function StudentPortalPage({
           )}
         </section>
 
+        {onlineAssessments.length > 0 && (
+          <section className="mt-8">
+            <div className="text-sm font-semibold text-[#315c4d]">ASSESSMENTS TO COMPLETE</div>
+            <h2 className="mt-1 text-2xl font-bold">Your assigned assessments</h2>
+
+            <div className="mt-4 grid gap-4">
+              {assignments.filter((assignment) => onlineByAssignment.has(assignment.id)).map((assignment) => {
+                const enrollment = enrollmentById.get(assignment.student_course_enrollment_id);
+                const course = firstRelation<{ title: string; course_code: string }>(enrollment?.course_versions);
+                return (
+                  <article key={assignment.id} className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <div>
+                        <div className="text-xs font-semibold uppercase tracking-wide text-amber-800">{course?.course_code ?? "COURSE"} · {assignment.assignment_type}</div>
+                        <h3 className="mt-1 text-lg font-bold">{assignment.title}</h3>
+                        <div className="mt-1 text-sm text-amber-900/70">
+                          {onlineByAssignment.get(assignment.id)} questions
+                          {assignment.due_date ? ` · Due ${assignment.due_date}` : ""}
+                        </div>
+                      </div>
+                      <Link href={`/student/assessments/${assignment.id}`} className="rounded-xl bg-[#315c4d] px-5 py-3 font-semibold text-white hover:bg-[#24483c]">
+                        Take assessment
+                      </Link>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
         <section className="mt-8">
           <div>
             <div className="text-sm font-semibold text-[#315c4d]">MY GRADES</div>
@@ -251,6 +293,8 @@ export default async function StudentPortalPage({
                         <div className="text-2xl font-bold">{grade.percentage?.toFixed(1)}%</div>
                         <div className="text-sm text-[#667085]">{grade.points_earned}/{grade.points_possible} · {grade.letter_grade}</div>
                       </div>
+                    ) : onlineByAssignment.has(assignment.id) ? (
+                      <StatusPill tone="amber">Ready to take</StatusPill>
                     ) : (
                       <StatusPill tone="amber">Not graded yet</StatusPill>
                     )}
@@ -265,7 +309,7 @@ export default async function StudentPortalPage({
               );
             }) : (
               <div className="rounded-2xl border border-[#e4e7ec] bg-white p-6 text-sm text-[#667085]">
-                No graded assignments yet.
+                No assignments yet.
               </div>
             )}
           </div>

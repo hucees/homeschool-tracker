@@ -34,6 +34,7 @@ type Assignment = {
   assigned_date: string;
   due_date: string | null;
   status: string;
+  curriculum_instance_number: number;
 };
 
 type Grade = {
@@ -46,6 +47,14 @@ type Grade = {
   letter_grade: string | null;
   teacher_feedback: string | null;
   graded_at: string;
+  grading_source: string;
+};
+
+type Submission = {
+  id: string;
+  student_assignment_id: string;
+  submitted_at: string;
+  auto_graded: boolean;
 };
 
 type Competency = {
@@ -131,8 +140,10 @@ export default async function StudentGradebookPage({
   let templates: Template[] = [];
   let assignments: Assignment[] = [];
   let grades: Grade[] = [];
+  let submissions: Submission[] = [];
   let competencies: Competency[] = [];
   let evidence: Evidence[] = [];
+  let onlineTemplateIds = new Set<string>();
 
   if (courseVersionIds.length) {
     const [templateResult, competencyResult] = await Promise.all([
@@ -152,13 +163,23 @@ export default async function StudentGradebookPage({
     ]);
     templates = (templateResult.data ?? []) as Template[];
     competencies = (competencyResult.data ?? []) as Competency[];
+
+    const templateIds = templates.map((template) => template.id);
+    if (templateIds.length) {
+      const { data } = await supabase
+        .from("assessment_template_items")
+        .select("assignment_template_id")
+        .in("assignment_template_id", templateIds);
+
+      onlineTemplateIds = new Set((data ?? []).map((row) => row.assignment_template_id));
+    }
   }
 
   if (enrollmentIds.length) {
     const [{ data: assignmentData }, { data: evidenceData }] = await Promise.all([
       supabase
         .from("student_assignments")
-        .select("id,student_course_enrollment_id,assignment_template_id,title,assignment_type,max_points,assigned_date,due_date,status")
+        .select("id,student_course_enrollment_id,assignment_template_id,title,assignment_type,max_points,assigned_date,due_date,status,curriculum_instance_number")
         .eq("organization_id", organization.id)
         .eq("student_id", studentId)
         .in("student_course_enrollment_id", enrollmentIds)
@@ -178,17 +199,27 @@ export default async function StudentGradebookPage({
 
   const assignmentIds = assignments.map((row) => row.id);
   if (assignmentIds.length) {
-    const { data } = await supabase
-      .from("grade_records")
-      .select("id,student_assignment_id,revision_number,points_earned,points_possible,percentage,letter_grade,teacher_feedback,graded_at")
-      .eq("organization_id", organization.id)
-      .eq("student_id", studentId)
-      .eq("status", "current")
-      .in("student_assignment_id", assignmentIds);
-    grades = (data ?? []) as Grade[];
+    const [gradeResult, submissionResult] = await Promise.all([
+      supabase
+        .from("grade_records")
+        .select("id,student_assignment_id,revision_number,points_earned,points_possible,percentage,letter_grade,teacher_feedback,graded_at,grading_source")
+        .eq("organization_id", organization.id)
+        .eq("student_id", studentId)
+        .eq("status", "current")
+        .in("student_assignment_id", assignmentIds),
+      supabase
+        .from("assignment_submissions")
+        .select("id,student_assignment_id,submitted_at,auto_graded")
+        .eq("organization_id", organization.id)
+        .eq("student_id", studentId)
+        .in("student_assignment_id", assignmentIds),
+    ]);
+    grades = (gradeResult.data ?? []) as Grade[];
+    submissions = (submissionResult.data ?? []) as Submission[];
   }
 
   const gradeByAssignment = new Map(grades.map((grade) => [grade.student_assignment_id, grade]));
+  const submissionByAssignment = new Map(submissions.map((submission) => [submission.student_assignment_id, submission]));
   const enrollmentById = new Map(enrollments.map((enrollment) => [enrollment.id, enrollment]));
 
   return (
@@ -223,18 +254,24 @@ export default async function StudentGradebookPage({
         <section className="grid gap-4">
           <div>
             <h2 className="text-xl font-bold">Assign an assessment</h2>
-            <p className="mt-1 text-sm text-[#667085]">These assessments come directly from the student&apos;s versioned curriculum.</p>
+            <p className="mt-1 text-sm text-[#667085]">
+              Online-ready assessments create a frozen copy of their exact questions when assigned.
+            </p>
           </div>
 
           {enrollments.length ? enrollments.map((enrollment) => {
             const course = firstRelation<{ title: string; course_code: string }>(enrollment.course_versions);
             const courseTemplates = templates.filter((template) => template.course_version_id === enrollment.course_version_id);
-            const alreadyAssignedTemplateIds = new Set(
+            const openTemplateIds = new Set(
               assignments
-                .filter((assignment) => assignment.student_course_enrollment_id === enrollment.id && assignment.assignment_template_id)
+                .filter((assignment) =>
+                  assignment.student_course_enrollment_id === enrollment.id &&
+                  assignment.assignment_template_id &&
+                  ["assigned", "submitted"].includes(assignment.status)
+                )
                 .map((assignment) => assignment.assignment_template_id as string)
             );
-            const availableTemplates = courseTemplates.filter((template) => !alreadyAssignedTemplateIds.has(template.id));
+            const availableTemplates = courseTemplates.filter((template) => !openTemplateIds.has(template.id));
 
             return (
               <form action={assignAssessment} key={enrollment.id} className="rounded-2xl border border-[#e4e7ec] bg-white p-5">
@@ -257,6 +294,7 @@ export default async function StudentGradebookPage({
                         {availableTemplates.map((template) => (
                           <option key={template.id} value={template.id}>
                             {template.code} · {template.title} · {template.max_points ?? 0} pts
+                            {onlineTemplateIds.has(template.id) ? " · ONLINE" : ""}
                           </option>
                         ))}
                       </select>
@@ -278,7 +316,7 @@ export default async function StudentGradebookPage({
                   </div>
                 ) : (
                   <div className="mt-4 rounded-xl bg-[#f8faf9] p-4 text-sm text-[#667085]">
-                    All curriculum assessments for this course are already assigned.
+                    No additional curriculum assessments are available while an open copy is assigned.
                   </div>
                 )}
               </form>
@@ -291,11 +329,12 @@ export default async function StudentGradebookPage({
         <section className="grid gap-4">
           <div>
             <h2 className="text-xl font-bold">Assignments & grades</h2>
-            <p className="mt-1 text-sm text-[#667085]">A changed grade creates a new revision; the prior grade remains in permanent history.</p>
+            <p className="mt-1 text-sm text-[#667085]">Online submissions are automatically scored; instructor corrections still create permanent grade revisions.</p>
           </div>
 
           {assignments.length ? assignments.map((assignment) => {
             const grade = gradeByAssignment.get(assignment.id);
+            const submission = submissionByAssignment.get(assignment.id);
             const enrollment = enrollmentById.get(assignment.student_course_enrollment_id);
             const course = firstRelation<{ title: string; course_code: string }>(enrollment?.course_versions);
 
@@ -303,8 +342,13 @@ export default async function StudentGradebookPage({
               <article key={assignment.id} className="rounded-2xl border border-[#e4e7ec] bg-white p-6">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <div className="text-xs font-semibold uppercase tracking-wide text-[#315c4d]">
-                      {course?.course_code ?? "COURSE"} · {assignment.assignment_type}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="text-xs font-semibold uppercase tracking-wide text-[#315c4d]">
+                        {course?.course_code ?? "COURSE"} · {assignment.assignment_type}
+                      </div>
+                      {assignment.assignment_template_id && onlineTemplateIds.has(assignment.assignment_template_id) && (
+                        <StatusPill tone="green">Online</StatusPill>
+                      )}
                     </div>
                     <h3 className="mt-1 text-lg font-bold">{assignment.title}</h3>
                     <div className="mt-1 text-sm text-[#667085]">
@@ -320,11 +364,22 @@ export default async function StudentGradebookPage({
                       <div className="text-sm text-[#667085]">
                         {grade.points_earned}/{grade.points_possible} · {grade.letter_grade}
                       </div>
+                      {grade.grading_source === "automatic" && (
+                        <div className="mt-1 text-xs font-semibold text-emerald-700">Auto-scored</div>
+                      )}
                     </div>
                   ) : (
-                    <StatusPill tone="amber">Needs grade</StatusPill>
+                    <StatusPill tone="amber">{submission ? "Submitted" : "Needs grade"}</StatusPill>
                   )}
                 </div>
+
+                {submission && (
+                  <div className="mt-4">
+                    <Link href={`/dashboard/students/${studentId}/gradebook/${assignment.id}`} className="text-sm font-semibold text-[#315c4d] hover:underline">
+                      Review student assessment answers →
+                    </Link>
+                  </div>
+                )}
 
                 {grade?.teacher_feedback && (
                   <div className="mt-4 rounded-xl bg-[#f8faf9] p-4 text-sm leading-6">
@@ -371,11 +426,11 @@ export default async function StudentGradebookPage({
                       <input
                         name="change_reason"
                         required
-                        placeholder="Example: Corrected scoring error on question 4"
+                        placeholder="Example: Instructor reviewed response and adjusted scoring"
                         className="rounded-xl border border-[#d0d5dd] px-3.5 py-3"
                       />
                       <span className="text-xs font-normal text-[#667085]">
-                        Required because revision {grade.revision_number + 1} will preserve revision {grade.revision_number} in history.
+                        Required because revision {grade.revision_number + 1} will preserve revision {grade.revision_number}.
                       </span>
                     </label>
                   )}
@@ -398,7 +453,7 @@ export default async function StudentGradebookPage({
             <div>
               <h2 className="text-xl font-bold">Competency progress</h2>
               <p className="mt-1 text-sm text-[#667085]">
-                A competency becomes Mastered only after it meets its required number of qualifying demonstrations.
+                Mastery still requires the curriculum&apos;s specified number and types of demonstrations.
               </p>
             </div>
             <div className="text-xs text-[#667085]">{competencies.length} competencies in active courses</div>
