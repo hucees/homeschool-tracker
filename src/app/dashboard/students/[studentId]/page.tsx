@@ -21,7 +21,14 @@ export default async function StudentDetailPage({
   const query = await searchParams;
   const { supabase, organization } = await requireOrganization();
 
-  const [{ data: student }, { data: placement }, { data: enrollments }, { data: loginLink }] = await Promise.all([
+  const [
+    { data: student },
+    { data: placement },
+    { data: enrollments },
+    { data: loginLink },
+    { count: assignmentCount },
+    { count: gradeCount },
+  ] = await Promise.all([
     supabase
       .from("students")
       .select("id,student_number,first_name,middle_name,last_name,preferred_name,date_of_birth,enrollment_date,status")
@@ -49,6 +56,18 @@ export default async function StudentDetailPage({
       .eq("organization_id", organization.id)
       .eq("student_id", studentId)
       .maybeSingle(),
+    supabase
+      .from("student_assignments")
+      .select("id", { count: "exact", head: true })
+      .eq("organization_id", organization.id)
+      .eq("student_id", studentId)
+      .neq("status", "cancelled"),
+    supabase
+      .from("grade_records")
+      .select("id", { count: "exact", head: true })
+      .eq("organization_id", organization.id)
+      .eq("student_id", studentId)
+      .eq("status", "current"),
   ]);
 
   if (!student) notFound();
@@ -83,12 +102,13 @@ export default async function StudentDetailPage({
             <StatusPill>{student.status}</StatusPill>
           </div>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
             <div className="rounded-xl bg-[#f8faf9] p-4">
               <div className="text-xs font-semibold uppercase tracking-wide text-[#667085]">Official placement</div>
               <div className="mt-2 font-semibold">{grade?.name ?? "No active grade placement"}</div>
               <div className="mt-1 text-sm text-[#667085]">{academicYear?.name ?? "No active academic year"}</div>
             </div>
+
             <div className="rounded-xl bg-[#f8faf9] p-4">
               <div className="text-xs font-semibold uppercase tracking-wide text-[#667085]">Student login</div>
               {loginLink ? (
@@ -100,25 +120,45 @@ export default async function StudentDetailPage({
                 <div className="mt-2 text-sm text-[#667085]">No login account yet.</div>
               )}
             </div>
+
+            <div className="rounded-xl bg-[#f8faf9] p-4">
+              <div className="text-xs font-semibold uppercase tracking-wide text-[#667085]">Gradebook</div>
+              <div className="mt-2 font-semibold">{gradeCount ?? 0} graded</div>
+              <div className="mt-1 text-sm text-[#667085]">{assignmentCount ?? 0} assigned assessment(s)</div>
+            </div>
           </div>
         </section>
 
-        <section className="rounded-2xl border border-[#e4e7ec] bg-white p-6">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-bold">Student portal access</h2>
-              <p className="mt-1 text-sm text-[#667085]">School code: <strong>{organization.slug}</strong></p>
+        <section className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-2xl border border-[#e4e7ec] bg-white p-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold">Student portal access</h2>
+                <p className="mt-1 text-sm text-[#667085]">School code: <strong>{organization.slug}</strong></p>
+              </div>
+              <Link href={`/dashboard/students/${student.id}/login`} className="rounded-xl bg-[#315c4d] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#24483c]">
+                {loginLink ? "Manage login" : "Create login"}
+              </Link>
             </div>
-            <Link href={`/dashboard/students/${student.id}/login`} className="rounded-xl bg-[#315c4d] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#24483c]">
-              {loginLink ? "Manage login" : "Create login"}
-            </Link>
+
+            {!isSupabaseAdminConfigured() && (
+              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                Student Auth management needs the server-only <code>SUPABASE_SECRET_KEY</code> in <code>.env.local</code>.
+              </div>
+            )}
           </div>
 
-          {!isSupabaseAdminConfigured() && (
-            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-              Student Auth management needs the server-only <code>SUPABASE_SECRET_KEY</code> in <code>.env.local</code>. We will add it before creating the login.
+          <div className="rounded-2xl border border-[#e4e7ec] bg-white p-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold">Assignments & grades</h2>
+                <p className="mt-1 text-sm text-[#667085]">Assign assessments, enter grades, and review competency mastery.</p>
+              </div>
+              <Link href={`/dashboard/students/${student.id}/gradebook`} className="rounded-xl bg-[#315c4d] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#24483c]">
+                Open gradebook
+              </Link>
             </div>
-          )}
+          </div>
         </section>
 
         <section className="rounded-2xl border border-[#e4e7ec] bg-white p-6">

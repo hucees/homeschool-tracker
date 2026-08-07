@@ -9,6 +9,7 @@ const required = [
   "src/app/login/page.tsx",
   "src/app/dashboard/page.tsx",
   "src/app/dashboard/daily/page.tsx",
+  "src/app/dashboard/students/[studentId]/gradebook/page.tsx",
   "src/lib/supabase/server.ts",
   "src/proxy.ts",
   "supabase/migrations",
@@ -24,8 +25,8 @@ for (const item of required) {
 
 const migrationDir = join(root, "supabase/migrations");
 const migrations = existsSync(migrationDir) ? readdirSync(migrationDir).filter((f) => f.endsWith(".sql")).sort() : [];
-if (migrations.length !== 7) {
-  console.error(`Expected 7 migrations, found ${migrations.length}.`);
+if (migrations.length !== 8) {
+  console.error(`Expected 8 migrations, found ${migrations.length}.`);
   failed = true;
 }
 

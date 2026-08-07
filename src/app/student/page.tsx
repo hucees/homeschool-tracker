@@ -1,4 +1,5 @@
 import { Brand } from "@/components/brand";
+import { StatusPill } from "@/components/status-pill";
 import { requireStudent } from "@/lib/auth";
 import { localDateInTimezone } from "@/lib/student-login";
 import { saveDailyCourseWork, studentSignOut } from "./actions";
@@ -32,6 +33,27 @@ type Entry = {
   student_note: string | null;
 };
 
+type Assignment = {
+  id: string;
+  student_course_enrollment_id: string;
+  title: string;
+  assignment_type: string;
+  max_points: number | null;
+  assigned_date: string;
+  due_date: string | null;
+  status: string;
+};
+
+type Grade = {
+  student_assignment_id: string;
+  points_earned: number | null;
+  points_possible: number | null;
+  percentage: number | null;
+  letter_grade: string | null;
+  teacher_feedback: string | null;
+  graded_at: string;
+};
+
 function firstRelation<T>(value: unknown): T | null {
   if (Array.isArray(value)) return (value[0] as T | undefined) ?? null;
   return (value as T | null) ?? null;
@@ -61,6 +83,8 @@ export default async function StudentPortalPage({
   let todayEntries: Entry[] = [];
   let completedEntries: Entry[] = [];
   let lessons: Lesson[] = [];
+  let assignments: Assignment[] = [];
+  let grades: Grade[] = [];
 
   if (enrollmentIds.length) {
     const { data: todayRecord } = await supabase
@@ -70,7 +94,7 @@ export default async function StudentPortalPage({
       .eq("record_date", recordDate)
       .maybeSingle();
 
-    const [completedResult, lessonsResult] = await Promise.all([
+    const [completedResult, lessonsResult, assignmentResult] = await Promise.all([
       supabase
         .from("daily_learning_entries")
         .select("id,student_course_enrollment_id,lesson_id,status,minutes_spent,student_note")
@@ -83,10 +107,18 @@ export default async function StudentPortalPage({
         .in("course_version_id", courseVersionIds)
         .eq("status", "active")
         .order("sequence"),
+      supabase
+        .from("student_assignments")
+        .select("id,student_course_enrollment_id,title,assignment_type,max_points,assigned_date,due_date,status")
+        .eq("student_id", student.id)
+        .in("student_course_enrollment_id", enrollmentIds)
+        .neq("status", "cancelled")
+        .order("assigned_date", { ascending: false }),
     ]);
 
     completedEntries = (completedResult.data ?? []) as Entry[];
     lessons = (lessonsResult.data ?? []) as Lesson[];
+    assignments = (assignmentResult.data ?? []) as Assignment[];
 
     if (todayRecord?.id) {
       const { data } = await supabase
@@ -96,9 +128,23 @@ export default async function StudentPortalPage({
         .in("student_course_enrollment_id", enrollmentIds);
       todayEntries = (data ?? []) as Entry[];
     }
+
+    const assignmentIds = assignments.map((assignment) => assignment.id);
+    if (assignmentIds.length) {
+      const { data } = await supabase
+        .from("grade_records")
+        .select("student_assignment_id,points_earned,points_possible,percentage,letter_grade,teacher_feedback,graded_at")
+        .eq("student_id", student.id)
+        .eq("status", "current")
+        .in("student_assignment_id", assignmentIds)
+        .order("graded_at", { ascending: false });
+      grades = (data ?? []) as Grade[];
+    }
   }
 
   const todayByEnrollment = new Map(todayEntries.map((entry) => [entry.student_course_enrollment_id, entry]));
+  const gradeByAssignment = new Map(grades.map((grade) => [grade.student_assignment_id, grade]));
+  const enrollmentById = new Map(enrollments.map((enrollment) => [enrollment.id, enrollment]));
 
   return (
     <main className="min-h-screen bg-[#f7f8fb] px-5 py-6">
@@ -175,6 +221,54 @@ export default async function StudentPortalPage({
           }) : (
             <div className="rounded-2xl border border-[#e4e7ec] bg-white p-8 text-center text-[#667085]">No active courses are assigned yet.</div>
           )}
+        </section>
+
+        <section className="mt-8">
+          <div>
+            <div className="text-sm font-semibold text-[#315c4d]">MY GRADES</div>
+            <h2 className="mt-1 text-2xl font-bold">Assignments & feedback</h2>
+          </div>
+
+          <div className="mt-4 grid gap-4">
+            {assignments.length ? assignments.map((assignment) => {
+              const grade = gradeByAssignment.get(assignment.id);
+              const enrollment = enrollmentById.get(assignment.student_course_enrollment_id);
+              const course = firstRelation<{ title: string; course_code: string }>(enrollment?.course_versions);
+
+              return (
+                <article key={assignment.id} className="rounded-2xl border border-[#e4e7ec] bg-white p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-wide text-[#315c4d]">{course?.course_code ?? "COURSE"} · {assignment.assignment_type}</div>
+                      <h3 className="mt-1 font-bold">{assignment.title}</h3>
+                      <div className="mt-1 text-sm text-[#667085]">
+                        Assigned {assignment.assigned_date}{assignment.due_date ? ` · Due ${assignment.due_date}` : ""}
+                      </div>
+                    </div>
+
+                    {grade ? (
+                      <div className="text-right">
+                        <div className="text-2xl font-bold">{grade.percentage?.toFixed(1)}%</div>
+                        <div className="text-sm text-[#667085]">{grade.points_earned}/{grade.points_possible} · {grade.letter_grade}</div>
+                      </div>
+                    ) : (
+                      <StatusPill tone="amber">Not graded yet</StatusPill>
+                    )}
+                  </div>
+
+                  {grade?.teacher_feedback && (
+                    <div className="mt-4 rounded-xl bg-[#f8faf9] p-4 text-sm leading-6">
+                      <span className="font-semibold">Teacher feedback:</span> {grade.teacher_feedback}
+                    </div>
+                  )}
+                </article>
+              );
+            }) : (
+              <div className="rounded-2xl border border-[#e4e7ec] bg-white p-6 text-sm text-[#667085]">
+                No graded assignments yet.
+              </div>
+            )}
+          </div>
         </section>
       </div>
     </main>
