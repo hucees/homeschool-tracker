@@ -100,7 +100,7 @@ export default async function StudentsPage({
               const courseTitles = coursesByStudent.get(student.id) ?? [];
 
               return (
-                <div key={student.id} className="flex flex-wrap items-center justify-between gap-4 border-b border-[#eaecf0] px-4 py-4 last:border-b-0">
+                <Link href={`/dashboard/students/${student.id}`} key={student.id} className="flex flex-wrap items-center justify-between gap-4 border-b border-[#eaecf0] px-4 py-4 transition hover:bg-slate-50 last:border-b-0">
                   <div>
                     <div className="font-semibold">
                       {student.preferred_name || student.first_name} {student.last_name}
@@ -116,8 +116,8 @@ export default async function StudentsPage({
                       {courseTitles.length ? `Active courses: ${courseTitles.join(", ")}` : "No active course assignments yet"}
                     </div>
                   </div>
-                  <StatusPill>{student.status}</StatusPill>
-                </div>
+                  <div className="flex items-center gap-3"><StatusPill>{student.status}</StatusPill><span className="text-sm font-semibold text-[#315c4d]">View →</span></div>
+                </Link>
               );
             })
           ) : (

@@ -22,3 +22,9 @@ export function getSupabaseEnv() {
     publishableKey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
   };
 }
+
+
+export function isSupabaseAdminConfigured() {
+  const key = process.env.SUPABASE_SECRET_KEY;
+  return Boolean(key && !key.includes("REPLACE_ME"));
+}

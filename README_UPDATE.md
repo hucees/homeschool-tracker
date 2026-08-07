@@ -1,13 +1,21 @@
-# Add Student Workflow Update
+# Student Login + Portal Update
 
-This update adds the first real instructor student-management workflow.
+This update adds the second working vertical slice.
 
 Included:
-- `/dashboard/students/new` Add Student form
-- permanent student identity creation
-- official academic-year grade placement
-- optional Grade 1 Mathematics 2026.1 course enrollment
-- atomic database function so partial student records are not left behind
-- roster display of grade placement, academic year, and active courses
-- Migration 005
-- starter checker updated to expect five migrations
+- Instructor student detail page
+- Instructor-managed student username/password creation
+- Server-only Supabase admin client using SUPABASE_SECRET_KEY
+- Student password reset
+- Student sign-in with school code + username + password
+- Chromebook-friendly student portal
+- Next incomplete lesson selection per active course
+- Student completion checkbox, minutes worked, and lesson note
+- Atomic daily learning record RPC
+- Migration 006
+- Student roster links to student records
+
+Security:
+- The Supabase secret key stays server-only.
+- Students remain protected by Row Level Security.
+- Student daily writes are validated again inside PostgreSQL.

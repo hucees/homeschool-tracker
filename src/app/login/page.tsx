@@ -12,7 +12,18 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   if (configured) {
     const supabase = await createClient();
     const { data } = await supabase.auth.getClaims();
-    if (data?.claims?.sub) redirect("/dashboard");
+    const userId = data?.claims?.sub;
+    if (userId) {
+      const { data: studentLink } = await supabase
+        .from("student_user_links")
+        .select("id")
+        .eq("profile_id", userId)
+        .eq("is_active", true)
+        .limit(1)
+        .maybeSingle();
+      if (studentLink) redirect("/student");
+      redirect("/dashboard");
+    }
   }
 
   return (

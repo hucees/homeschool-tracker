@@ -23,8 +23,8 @@ for (const item of required) {
 
 const migrationDir = join(root, "supabase/migrations");
 const migrations = existsSync(migrationDir) ? readdirSync(migrationDir).filter((f) => f.endsWith(".sql")).sort() : [];
-if (migrations.length !== 5) {
-  console.error(`Expected 5 migrations, found ${migrations.length}.`);
+if (migrations.length !== 6) {
+  console.error(`Expected 6 migrations, found ${migrations.length}.`);
   failed = true;
 }
 

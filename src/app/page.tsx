@@ -20,7 +20,7 @@ export default function Home() {
             <p className="mt-6 max-w-2xl text-lg leading-8 text-[#667085]">Curriculum, daily learning logs, attendance, assignments, mastery, reports, promotion decisions, and transcripts—built around historical records that are never silently overwritten.</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/login" className="rounded-xl bg-[#315c4d] px-5 py-3 font-semibold text-white hover:bg-[#24483c]">Open instructor portal</Link>
-              <Link href="/student" className="rounded-xl border border-[#d0d5dd] bg-white px-5 py-3 font-semibold text-[#344054] hover:bg-slate-50">Student portal</Link>
+              <Link href="/student/login" className="rounded-xl border border-[#d0d5dd] bg-white px-5 py-3 font-semibold text-[#344054] hover:bg-slate-50">Student portal</Link>
             </div>
           </div>
 
@@ -30,7 +30,7 @@ export default function Home() {
               {[
                 ["Next.js application", true],
                 ["Supabase SSR wiring", true],
-                ["Migrations 001–004", true],
+                ["Migrations 001–006", true],
                 ["Supabase credentials", configured],
                 ["Hosted database applied", false],
               ].map(([label, done]) => (
