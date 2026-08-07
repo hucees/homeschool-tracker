@@ -5,8 +5,8 @@ import { signOut } from "@/actions/auth";
 const nav = [
   ["Dashboard", "/dashboard"],
   ["Students", "/dashboard/students"],
+  ["Daily review", "/dashboard/daily"],
   ["Curriculum", "/dashboard#curriculum"],
-  ["Attendance", "/dashboard#attendance"],
   ["Reports", "/dashboard#reports"],
 ];
 
