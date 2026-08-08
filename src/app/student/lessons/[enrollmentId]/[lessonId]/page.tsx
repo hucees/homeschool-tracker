@@ -15,10 +15,13 @@ export default async function StudentLessonPage({
   const { supabase, student, organization } = await requireStudent();
   const studentName = student.preferred_name || student.first_name;
 
-  const { data, error } = await supabase.rpc("get_my_lesson_delivery", {
-    p_student_course_enrollment_id: enrollmentId,
-    p_lesson_id: lessonId,
-  });
+  const [{ data, error }, { data: onlineData }] = await Promise.all([
+    supabase.rpc("get_my_lesson_delivery", {
+      p_student_course_enrollment_id: enrollmentId,
+      p_lesson_id: lessonId,
+    }),
+    supabase.rpc("get_my_online_assessments"),
+  ]);
 
   if (error) {
     return (
@@ -32,14 +35,43 @@ export default async function StudentLessonPage({
 
   const delivery = data as StudentLessonDelivery;
   const lesson = delivery.lesson;
+  const worksheetItems =
+    delivery.items?.filter((item) => item.section === "worksheet") ?? [];
+
+  const onlineIds = (onlineData ?? []).map(
+    (row: { student_assignment_id: string }) => row.student_assignment_id
+  );
+
+  let assessment: { id: string; title: string } | null = null;
+  if (onlineIds.length) {
+    const { data: assessmentData } = await supabase
+      .from("student_assignments")
+      .select("id,title")
+      .eq("student_id", student.id)
+      .eq("student_course_enrollment_id", enrollmentId)
+      .eq("lesson_id", lessonId)
+      .eq("status", "assigned")
+      .in("id", onlineIds)
+      .limit(1);
+
+    assessment = assessmentData?.[0] ?? null;
+  }
 
   return (
     <StudentShell studentName={studentName} organizationName={organization.name}>
       <div className="grid gap-6">
-        <div className="print-hidden">
+        <div className="print-hidden flex flex-wrap items-center justify-between gap-3">
           <Link href="/student/lessons" className="text-sm font-bold text-[#23685a] hover:underline">
             ← Back to lessons
           </Link>
+          {delivery.available && worksheetItems.length > 0 && (
+            <Link
+              href={`/student/lessons/${enrollmentId}/${lessonId}/worksheet`}
+              className="rounded-xl border border-[#b9cec5] bg-white px-3.5 py-2 text-sm font-bold text-[#23685a] hover:bg-[#edf7f3]"
+            >
+              Open printable worksheet
+            </Link>
+          )}
         </div>
 
         <section className="overflow-hidden rounded-[26px] border border-[#d7e2dd] bg-white shadow-sm">
@@ -69,11 +101,26 @@ export default async function StudentLessonPage({
           <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5 sm:p-6">
             <h2 className="font-bold text-amber-950">Detailed lesson content is not published yet.</h2>
             <p className="mt-2 text-sm leading-6 text-amber-900">
-              The lesson is still part of your assigned course, but the full Learn / Practice / Worksheet content has not been published by the instructor.
+              The lesson is still part of your assigned course, but its full Learn / Practice / Worksheet content has not been published.
             </p>
-            {lesson.description && (
-              <p className="mt-3 text-sm leading-6 text-amber-900">{lesson.description}</p>
-            )}
+          </section>
+        )}
+
+        {assessment && (
+          <section className="rounded-2xl border border-[#dfc994] bg-[#fff9eb] p-5 shadow-sm sm:p-6">
+            <div className="text-xs font-bold uppercase tracking-[0.16em] text-[#8a6728]">
+              Week check
+            </div>
+            <h2 className="mt-1 text-xl font-bold">{assessment.title}</h2>
+            <p className="mt-2 text-sm leading-6 text-[#765f39]">
+              Your online check is assigned and ready. Complete it independently after finishing the lesson review.
+            </p>
+            <Link
+              href={`/student/assessments/${assessment.id}`}
+              className="mt-4 inline-flex w-full justify-center rounded-xl bg-[#8a6728] px-5 py-3 font-bold text-white hover:bg-[#6f511d] sm:w-auto"
+            >
+              Start Week 1 Check
+            </Link>
           </section>
         )}
 

@@ -6,16 +6,14 @@ const required = [
   "package.json",
   ".env.example",
   "src/app/dashboard/curriculum/page.tsx",
-  "src/app/dashboard/curriculum/[courseVersionId]/page.tsx",
   "src/app/dashboard/curriculum/lessons/[lessonId]/page.tsx",
-  "src/app/student/lessons/page.tsx",
+  "src/app/dashboard/curriculum/lessons/[lessonId]/guide/page.tsx",
+  "src/app/dashboard/curriculum/lessons/[lessonId]/worksheet/page.tsx",
   "src/app/student/lessons/[enrollmentId]/[lessonId]/page.tsx",
-  "src/components/lesson-author-form.tsx",
+  "src/app/student/lessons/[enrollmentId]/[lessonId]/worksheet/page.tsx",
+  "src/components/teacher-lesson-guide.tsx",
   "src/components/lesson-content-view.tsx",
   "src/lib/lesson-content.ts",
-  "src/lib/student-progress.ts",
-  "src/lib/student-transcript.ts",
-  "src/proxy.ts",
   "supabase/migrations",
 ];
 
@@ -32,8 +30,8 @@ const migrations = existsSync(migrationDir)
   ? readdirSync(migrationDir).filter((f) => f.endsWith(".sql")).sort()
   : [];
 
-if (migrations.length !== 15) {
-  console.error(`Expected 15 migrations, found ${migrations.length}.`);
+if (migrations.length !== 16) {
+  console.error(`Expected 16 migrations, found ${migrations.length}.`);
   failed = true;
 }
 

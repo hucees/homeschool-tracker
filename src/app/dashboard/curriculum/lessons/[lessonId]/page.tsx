@@ -71,9 +71,24 @@ export default async function LessonAuthorPage({
           >
             ← Back to {course?.course_code ?? "course"}
           </Link>
+
           <div className="flex flex-wrap gap-2">
-            {published && <StatusPill tone="green">Published r{published.revision_number}</StatusPill>}
-            {draft && <StatusPill tone="amber">Draft r{draft.revision_number}</StatusPill>}
+            {published && (
+              <>
+                <Link
+                  href={`/dashboard/curriculum/lessons/${lessonId}/guide`}
+                  className="rounded-xl border border-[#cbd8d2] bg-white px-3 py-2 text-sm font-bold text-[#456f91] hover:bg-[#f5f9fc]"
+                >
+                  Teacher guide
+                </Link>
+                <Link
+                  href={`/dashboard/curriculum/lessons/${lessonId}/worksheet`}
+                  className="rounded-xl border border-[#cbd8d2] bg-white px-3 py-2 text-sm font-bold text-[#456f91] hover:bg-[#f5f9fc]"
+                >
+                  Answer key
+                </Link>
+              </>
+            )}
           </div>
         </div>
 
@@ -95,24 +110,27 @@ export default async function LessonAuthorPage({
 
         <section className="overflow-hidden rounded-[26px] border border-[#d7e2dd] bg-white shadow-sm">
           <div className="bg-gradient-to-br from-[#eef7f3] via-white to-[#eef4f8] p-5 sm:p-7">
-            <div className="text-xs font-bold uppercase tracking-[0.16em] text-[#456f91]">
-              {course?.course_code ?? "COURSE"} · Week {lesson.week_number} · Day {lesson.day_number ?? lesson.sequence}
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+              <div>
+                <div className="text-xs font-bold uppercase tracking-[0.16em] text-[#456f91]">
+                  {course?.course_code ?? "COURSE"} · Week {lesson.week_number} · Day {lesson.day_number ?? lesson.sequence}
+                </div>
+                <h1 className="mt-2 text-2xl font-bold sm:text-3xl">{lesson.title}</h1>
+                <p className="mt-2 text-sm leading-6 text-[#617078]">
+                  {lesson.code} · {lesson.lesson_type ?? "lesson"} · {lesson.estimated_minutes ?? "—"} minutes
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {published && <StatusPill tone="green">Published r{published.revision_number}</StatusPill>}
+                {draft && <StatusPill tone="amber">Draft r{draft.revision_number}</StatusPill>}
+              </div>
             </div>
-            <h1 className="mt-2 text-2xl font-bold sm:text-3xl">{lesson.title}</h1>
-            <p className="mt-2 text-sm leading-6 text-[#617078]">
-              {lesson.code} · {lesson.lesson_type ?? "lesson"} · {lesson.estimated_minutes ?? "—"} minutes
-            </p>
-            {lesson.description && (
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-[#53646b]">
-                {lesson.description}
-              </p>
-            )}
           </div>
         </section>
 
         {published && !draft && (
           <div className="rounded-2xl border border-[#cfdde6] bg-[#eef5fa] p-4 text-sm leading-6 text-[#345f80]">
-            Revision {published.revision_number} is published and immutable. Editing the form and saving will create a new draft revision; students already delivered revision {published.revision_number} will keep it.
+            Revision {published.revision_number} is published and immutable. Saving edits creates a new draft revision; students already delivered revision {published.revision_number} keep it.
           </div>
         )}
 
@@ -129,7 +147,7 @@ export default async function LessonAuthorPage({
               Preview student lesson
             </summary>
             <p className="mt-2 text-sm text-[#617078]">
-              This preview intentionally hides teacher-only notes and all answers.
+              This preview hides teacher-only notes and all answers.
             </p>
             <div className="mt-5">
               <LessonContentView
@@ -174,9 +192,11 @@ export default async function LessonAuthorPage({
 
         {draft && (
           <section className="rounded-2xl border border-[#d8c697] bg-[#fff9eb] p-5 sm:p-6">
-            <h2 className="text-lg font-bold text-[#6f511d]">Publish draft revision {draft.revision_number}</h2>
+            <h2 className="text-lg font-bold text-[#6f511d]">
+              Publish draft revision {draft.revision_number}
+            </h2>
             <p className="mt-2 text-sm leading-6 text-[#765f39]">
-              Publishing makes this revision available to students. Published content cannot be edited in place; future changes create another revision.
+              Publishing makes this revision available to students. Published content cannot be edited in place.
             </p>
             <form action={publishLessonContent} className="mt-4">
               <input type="hidden" name="lesson_id" value={lessonId} />
