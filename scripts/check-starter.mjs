@@ -30,8 +30,8 @@ const migrations = existsSync(migrationDir)
   ? readdirSync(migrationDir).filter((f) => f.endsWith(".sql")).sort()
   : [];
 
-if (migrations.length !== 16) {
-  console.error(`Expected 16 migrations, found ${migrations.length}.`);
+if (migrations.length !== 17) {
+  console.error(`Expected 17 migrations, found ${migrations.length}.`);
   failed = true;
 }
 
