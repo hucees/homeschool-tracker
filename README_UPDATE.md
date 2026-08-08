@@ -1,74 +1,82 @@
-# Progress Dashboard + Official Reports
+# Student Reports + Responsive UI Refresh
 
-Migration 010 and the accompanying UI add the first reporting layer.
+This update finishes the reporting feature for students and refreshes the shared
+visual system. It does not add a database migration.
 
-## Live student progress
+## Student reporting
 
-Student record → Progress & reports now shows:
+Students now have:
 
-- official grade placement and academic year
-- confirmed attendance
+- `Progress & reports` navigation in the student portal
+- a live Current Progress Report generated from their own latest records
+- confirmed attendance totals
 - instructional minutes
-- each enrolled course
-- current course week
-- lessons completed / total lessons
-- lesson completion percentage
-- report-period weighted grade
-- letter grade
-- graded assessment count
-- competency totals:
-  - Mastered
-  - Proficient
-  - Practicing
-  - Needs review
-  - Not started
-- expandable competency detail
+- course grades
+- lesson completion
+- competency progress
+- Print / Save PDF
+- a list of their own instructor-issued official reports
+- read-only access to each official report
+- Print / Save PDF for official reports
 
-The competency calculation intentionally matches the gradebook behavior already
-approved for this project: repeated qualifying demonstrations can satisfy the
-configured mastery count.
+The live report is explicitly marked `Unofficial · live` and does not create a
+permanent report snapshot.
 
-## Official report snapshots
+Only an instructor can create an `official` frozen snapshot.
 
-The instructor can select:
+Existing RLS already permits a student to SELECT only their own report snapshot
+when its status is `official`, so no broader database access was added.
 
-- Progress Report
-- Quarter Report
-- Semester Report
-- Annual Report
-- Attendance Report
-- Competency Report
+## Responsive UI refresh
 
-and choose a start/end date within the student's academic-year placement.
+Shared UI now uses a calmer teal/blue academic palette with stronger text
+contrast and softer warm surfaces.
 
-Teacher comments are optional.
+Instructor:
+- sticky header
+- mobile horizontal navigation instead of a cramped sidebar
+- desktop sticky sidebar
+- responsive content width and spacing
+- better touch targets
 
-Clicking "Generate official report":
+Student:
+- reusable sticky student header
+- School work / Progress & reports navigation
+- mobile-first cards and forms
+- full-width primary buttons on narrow screens
+- two-column layouts only when enough width is available
 
-1. recalculates the selected reporting period from permanent source records
-2. freezes that exact data into `report_snapshots`
-3. assigns the next permanent report version
-4. stores a SHA-256 hash of the JSON snapshot
-5. marks the snapshot `official`
-6. redirects to a print-friendly official report
-
-Official snapshots cannot be edited or deleted. A future void workflow may mark
-one voided without changing the original data.
-
-## Printing / PDF
-
-The report viewer includes "Print / Save PDF", which uses the browser's print
-dialog. On macOS, choose Save as PDF to create a local PDF copy of that exact
-official report.
+Reports:
+- one shared report renderer for instructor and student
+- improved phone/tablet layouts
+- clearer attendance and academic sections
+- responsive competency rows
+- print-specific styling
+- official vs unofficial status is visually obvious
 
 ## Install
 
-1. Copy the update into the current project.
-2. `npm run check:starter`
-3. `npm run typecheck`
-4. `npm run lint`
-5. `npx supabase db push --dry-run`
-6. Confirm only `20260808000000_progress_reports.sql` is pending.
-7. `npx supabase db push`
-8. Restart `npm run dev`
-9. Instructor → Students → student → View progress
+No Supabase migration is required.
+
+1. Stop `npm run dev` if that is your normal workflow.
+2. Copy this update into the existing project.
+3. `npm run check:starter`
+4. `npm run typecheck`
+5. `npm run lint`
+6. Restart `npm run dev`
+
+## Test
+
+Student:
+1. Sign in.
+2. Confirm the new `Progress & reports` navigation.
+3. Open `View / Save current report`.
+4. Confirm it says `Unofficial · live`.
+5. Use Print / Save PDF.
+6. Open an existing official report.
+7. Confirm it says `Official`, shows the version and SHA-256, and can be saved as PDF.
+
+Instructor:
+1. Confirm the top/mobile navigation is readable.
+2. Open an existing official report.
+3. Confirm it uses the refreshed report layout.

@@ -1,9 +1,20 @@
-export function StatusPill({ children, tone = "green" }: { children: React.ReactNode; tone?: "green" | "amber" | "gray" }) {
+export function StatusPill({
+  children,
+  tone = "green",
+}: {
+  children: React.ReactNode;
+  tone?: "green" | "amber" | "gray" | "blue";
+}) {
   const classes = {
-    green: "bg-emerald-50 text-emerald-700 ring-emerald-600/20",
-    amber: "bg-amber-50 text-amber-700 ring-amber-600/20",
-    gray: "bg-slate-50 text-slate-600 ring-slate-500/20",
+    green: "bg-[#e6f5ee] text-[#17644f] ring-[#4b9b80]/25",
+    amber: "bg-[#fff3df] text-[#8b5a18] ring-[#d7a257]/30",
+    gray: "bg-[#f1f4f3] text-[#5f6d73] ring-[#74838a]/20",
+    blue: "bg-[#eaf2f8] text-[#345f80] ring-[#668ba7]/25",
   }[tone];
 
-  return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${classes}`}>{children}</span>;
+  return (
+    <span className={`inline-flex max-w-full items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${classes}`}>
+      {children}
+    </span>
+  );
 }

@@ -12,7 +12,12 @@ const required = [
   "src/app/dashboard/students/[studentId]/gradebook/page.tsx",
   "src/app/dashboard/students/[studentId]/progress/page.tsx",
   "src/app/dashboard/students/[studentId]/reports/[reportId]/page.tsx",
+  "src/app/student/page.tsx",
+  "src/app/student/progress/page.tsx",
+  "src/app/student/reports/[reportId]/page.tsx",
   "src/app/student/assessments/[assignmentId]/page.tsx",
+  "src/components/student-shell.tsx",
+  "src/components/progress-report-document.tsx",
   "src/lib/student-progress.ts",
   "src/lib/supabase/server.ts",
   "src/proxy.ts",
@@ -28,7 +33,10 @@ for (const item of required) {
 }
 
 const migrationDir = join(root, "supabase/migrations");
-const migrations = existsSync(migrationDir) ? readdirSync(migrationDir).filter((f) => f.endsWith(".sql")).sort() : [];
+const migrations = existsSync(migrationDir)
+  ? readdirSync(migrationDir).filter((f) => f.endsWith(".sql")).sort()
+  : [];
+
 if (migrations.length !== 11) {
   console.error(`Expected 11 migrations, found ${migrations.length}.`);
   failed = true;
@@ -39,9 +47,14 @@ console.log(`Starter: ${packageJson.name} ${packageJson.version}`);
 console.log(`Migrations: ${migrations.length}`);
 console.log(migrations.map((m) => `  - ${m}`).join("\n"));
 
-const suspiciousFiles = readdirSync(root).filter((name) => name === ".env.local" || name === ".env.production");
+const suspiciousFiles = readdirSync(root).filter(
+  (name) => name === ".env.local" || name === ".env.production"
+);
+
 if (suspiciousFiles.length) {
-  console.error(`Secret-bearing environment files should not be shipped: ${suspiciousFiles.join(", ")}`);
+  console.error(
+    `Secret-bearing environment files should not be shipped: ${suspiciousFiles.join(", ")}`
+  );
   failed = true;
 }
 
