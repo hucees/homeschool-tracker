@@ -1,69 +1,74 @@
-# Student Assessment Delivery Update
+# Progress Dashboard + Official Reports
 
-Migration 009 adds the first real student-taken curriculum assessment.
+Migration 010 and the accompanying UI add the first reporting layer.
 
-## Online assessment added
+## Live student progress
 
-`1-MATH-W01-CHECK` — Week 1 Mathematics Check
+Student record → Progress & reports now shows:
 
-It contains 10 automatically scored questions aligned to competency `1-MATH-01`:
-Count, read, write, order, and represent numbers through 120.
+- official grade placement and academic year
+- confirmed attendance
+- instructional minutes
+- each enrolled course
+- current course week
+- lessons completed / total lessons
+- lesson completion percentage
+- report-period weighted grade
+- letter grade
+- graded assessment count
+- competency totals:
+  - Mastered
+  - Proficient
+  - Practicing
+  - Needs review
+  - Not started
+- expandable competency detail
 
-The assessment intentionally represents the **written/visual** mastery evidence.
-The curriculum still requires a separate oral/hands-on demonstration, so one
-successful online assessment should produce Proficient evidence rather than
-prematurely proving full mastery.
+The competency calculation intentionally matches the gradebook behavior already
+approved for this project: repeated qualifying demonstrations can satisfy the
+configured mastery count.
 
-## Permanent record behavior
+## Official report snapshots
 
-When an instructor assigns an online-ready assessment, the exact questions,
-choice labels, answer key, sequence, and points are copied into a permanent
-student-assignment snapshot.
+The instructor can select:
 
-Later curriculum edits therefore cannot rewrite what the student actually saw.
+- Progress Report
+- Quarter Report
+- Semester Report
+- Annual Report
+- Attendance Report
+- Competency Report
 
-The student cannot directly SELECT the answer-key tables. A security-definer RPC
-returns only safe question fields before submission.
+and choose a start/end date within the student's academic-year placement.
 
-## Student workflow
+Teacher comments are optional.
 
-Instructor assigns Week 1 Mathematics Check.
-Student portal shows "Assessments to complete".
-Student opens the assessment and answers all 10 questions.
-Submission is scored in PostgreSQL.
-The exact answers are stored item by item.
-A GradeRecord is created with `grading_source = automatic`.
-Competency evidence is created.
-The grade immediately appears in My Grades.
+Clicking "Generate official report":
 
-## Instructor workflow
+1. recalculates the selected reporting period from permanent source records
+2. freezes that exact data into `report_snapshots`
+3. assigns the next permanent report version
+4. stores a SHA-256 hash of the JSON snapshot
+5. marks the snapshot `official`
+6. redirects to a print-friendly official report
 
-The gradebook shows an Auto-scored label.
-"Review student assessment answers" opens the exact frozen assessment and shows:
-- each question
-- student's answer
-- correct answer
-- correct/incorrect status
-- total grade
+Official snapshots cannot be edited or deleted. A future void workflow may mark
+one voided without changing the original data.
 
-An instructor can still correct an automatic score. Existing append-only grade
-revision behavior is preserved and a correction reason is required.
+## Printing / PDF
 
-## Repeating an assessment
-
-A graded/completed curriculum assessment can now be assigned again as a separate
-permanent instance. An open duplicate is still blocked.
-
-This lets the same competency collect a second independent demonstration without
-overwriting the first one.
+The report viewer includes "Print / Save PDF", which uses the browser's print
+dialog. On macOS, choose Save as PDF to create a local PDF copy of that exact
+official report.
 
 ## Install
 
-1. Copy the update into the existing project.
+1. Copy the update into the current project.
 2. `npm run check:starter`
 3. `npm run typecheck`
 4. `npm run lint`
 5. `npx supabase db push --dry-run`
-6. Confirm only `20260807230000_student_assessment_delivery.sql` is pending.
+6. Confirm only `20260808000000_progress_reports.sql` is pending.
 7. `npx supabase db push`
 8. Restart `npm run dev`
+9. Instructor → Students → student → View progress

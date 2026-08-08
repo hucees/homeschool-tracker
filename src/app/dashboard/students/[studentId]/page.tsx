@@ -28,6 +28,7 @@ export default async function StudentDetailPage({
     { data: loginLink },
     { count: assignmentCount },
     { count: gradeCount },
+    { count: reportCount },
   ] = await Promise.all([
     supabase
       .from("students")
@@ -68,6 +69,12 @@ export default async function StudentDetailPage({
       .eq("organization_id", organization.id)
       .eq("student_id", studentId)
       .eq("status", "current"),
+    supabase
+      .from("report_snapshots")
+      .select("id", { count: "exact", head: true })
+      .eq("organization_id", organization.id)
+      .eq("student_id", studentId)
+      .eq("status", "official"),
   ]);
 
   if (!student) notFound();
@@ -122,21 +129,21 @@ export default async function StudentDetailPage({
             </div>
 
             <div className="rounded-xl bg-[#f8faf9] p-4">
-              <div className="text-xs font-semibold uppercase tracking-wide text-[#667085]">Gradebook</div>
-              <div className="mt-2 font-semibold">{gradeCount ?? 0} graded</div>
-              <div className="mt-1 text-sm text-[#667085]">{assignmentCount ?? 0} assigned assessment(s)</div>
+              <div className="text-xs font-semibold uppercase tracking-wide text-[#667085]">Academic records</div>
+              <div className="mt-2 font-semibold">{gradeCount ?? 0} current grade(s)</div>
+              <div className="mt-1 text-sm text-[#667085]">{assignmentCount ?? 0} assessment(s) · {reportCount ?? 0} official report(s)</div>
             </div>
           </div>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-2">
+        <section className="grid gap-4 lg:grid-cols-3">
           <div className="rounded-2xl border border-[#e4e7ec] bg-white p-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex h-full flex-col justify-between gap-5">
               <div>
                 <h2 className="text-xl font-bold">Student portal access</h2>
                 <p className="mt-1 text-sm text-[#667085]">School code: <strong>{organization.slug}</strong></p>
               </div>
-              <Link href={`/dashboard/students/${student.id}/login`} className="rounded-xl bg-[#315c4d] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#24483c]">
+              <Link href={`/dashboard/students/${student.id}/login`} className="w-fit rounded-xl bg-[#315c4d] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#24483c]">
                 {loginLink ? "Manage login" : "Create login"}
               </Link>
             </div>
@@ -149,13 +156,25 @@ export default async function StudentDetailPage({
           </div>
 
           <div className="rounded-2xl border border-[#e4e7ec] bg-white p-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex h-full flex-col justify-between gap-5">
               <div>
                 <h2 className="text-xl font-bold">Assignments & grades</h2>
                 <p className="mt-1 text-sm text-[#667085]">Assign assessments, enter grades, and review competency mastery.</p>
               </div>
-              <Link href={`/dashboard/students/${student.id}/gradebook`} className="rounded-xl bg-[#315c4d] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#24483c]">
+              <Link href={`/dashboard/students/${student.id}/gradebook`} className="w-fit rounded-xl bg-[#315c4d] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#24483c]">
                 Open gradebook
+              </Link>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-[#e4e7ec] bg-white p-6">
+            <div className="flex h-full flex-col justify-between gap-5">
+              <div>
+                <h2 className="text-xl font-bold">Progress & reports</h2>
+                <p className="mt-1 text-sm text-[#667085]">Review course progress, attendance, competency status, and permanent report snapshots.</p>
+              </div>
+              <Link href={`/dashboard/students/${student.id}/progress`} className="w-fit rounded-xl bg-[#315c4d] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#24483c]">
+                View progress
               </Link>
             </div>
           </div>
