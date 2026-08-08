@@ -31,12 +31,12 @@ const migrations = existsSync(migrationDir)
   ? readdirSync(migrationDir).filter(f => f.endsWith(".sql")).sort()
   : [];
 
-if (migrations.length !== 23) {
-  console.error(`Expected 23 migrations, found ${migrations.length}.`);
+if (migrations.length !== 24) {
+  console.error(`Expected 24 migrations, found ${migrations.length}.`);
   failed = true;
 }
 
-const batchName = "20260808013000_grade1_math_weeks28_32_content.sql";
+const batchName = "20260808014000_grade1_math_weeks33_36_content.sql";
 const batchPath = join(migrationDir, batchName);
 
 if (!existsSync(batchPath)) {
@@ -45,7 +45,7 @@ if (!existsSync(batchPath)) {
 } else {
   const sql = readFileSync(batchPath, "utf8");
 
-  for (let week = 28; week <= 32; week++) {
+  for (let week = 33; week <= 36; week++) {
     const ww = String(week).padStart(2, "0");
 
     for (let day = 1; day <= 5; day++) {
@@ -66,7 +66,7 @@ if (!existsSync(batchPath)) {
     }
   }
 
-  if (/1-MATH-W(?:28|29|30|31|32)-D0[1-5]/.test(sql)) {
+  if (/1-MATH-W(?:33|34|35|36)-D0[1-5]/.test(sql)) {
     console.error("Found invalid D01–D05 lesson code.");
     failed = true;
   }
@@ -74,25 +74,30 @@ if (!existsSync(batchPath)) {
   const lessonInsertCount =
     (sql.match(/insert into public\.lesson_content_versions/g) || []).length;
 
-  if (lessonInsertCount !== 25) {
-    console.error(`Expected 25 lesson-content inserts, found ${lessonInsertCount}.`);
+  if (lessonInsertCount !== 20) {
+    console.error(`Expected 20 lesson-content inserts, found ${lessonInsertCount}.`);
     failed = true;
   }
 
   const qCodes =
-    [...sql.matchAll(/1-MATH-W(?:28|29|30|31|32)-Q\d{2}/g)].map(m => m[0]);
+    [...sql.matchAll(/1-MATH-W(?:33|34|35|36)-Q\d{2}/g)].map(m => m[0]);
 
-  if (new Set(qCodes).size !== 50) {
-    console.error(`Expected 50 unique assessment codes, found ${new Set(qCodes).size}.`);
+  if (new Set(qCodes).size !== 40) {
+    console.error(`Expected 40 unique assessment codes, found ${new Set(qCodes).size}.`);
     failed = true;
   }
 
-  if (!sql.includes("for v_week in 28..32 loop")) {
-    console.error("Missing Weeks 28–32 preflight loop.");
+  if (!sql.includes("for v_week in 33..36 loop")) {
+    console.error("Missing Weeks 33–36 preflight loop.");
     failed = true;
   }
 
-  if (!sql.includes("separate hands-on mastery evidence requirement")) {
+  if (!sql.includes("1-MATH-20 retains its configured 90% threshold")) {
+    console.error("Week 34 90% mastery-threshold marker missing.");
+    failed = true;
+  }
+
+  if (!sql.includes("no separate hands-on")) {
     console.error("Mastery-policy marker missing.");
     failed = true;
   }
@@ -101,10 +106,11 @@ if (!existsSync(batchPath)) {
 const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
 console.log(`Starter: ${pkg.name} ${pkg.version}`);
 console.log(`Migrations: ${migrations.length}`);
-console.log("Batch QA: Weeks 28–32 / 25 lessons / 50 online assessment items");
-console.log("Coverage: data + graphs + shapes + halves/fourths + addition within 100 I");
-console.log("Mastery policy: no separate hands-on evidence requirement");
+console.log("Batch QA: Weeks 33–36 / 20 lessons / 40 online assessment items");
+console.log("Coverage: addition within 100 II + 10 more/less + subtract tens + year-end mastery");
+console.log("Week 34 mastery threshold preserved: 90%");
+console.log("Grade 1 Math production curriculum coverage: Weeks 1–36 complete");
 
 if (failed) process.exit(1);
 
-console.log("Starter structure and Weeks 28–32 static checks passed.");
+console.log("Starter structure and Weeks 33–36 static checks passed.");

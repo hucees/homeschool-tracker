@@ -1,0 +1,162 @@
+{
+  "generated_at": "2026-08-08T06:43:38.357Z",
+  "course": "1-MATH",
+  "release": "2026.1",
+  "summary": {
+    "pass": 25,
+    "warn": 2,
+    "fail": 0
+  },
+  "checks": [
+    {
+      "level": "PASS",
+      "name": "course.exists",
+      "message": "Found Grade 1 Mathematics — 2026.1."
+    },
+    {
+      "level": "PASS",
+      "name": "course.weeks_config",
+      "message": "Course is configured for 36 instructional weeks."
+    },
+    {
+      "level": "PASS",
+      "name": "course.minutes",
+      "message": "Course is configured for 150 recommended minutes per week."
+    },
+    {
+      "level": "WARN",
+      "name": "course.release_status",
+      "message": "Course/release is still draft (course=draft, release=draft). This is acceptable during authoring but not a final locked release."
+    },
+    {
+      "level": "PASS",
+      "name": "structure.units",
+      "message": "All 8 expected units are present."
+    },
+    {
+      "level": "PASS",
+      "name": "structure.competencies",
+      "message": "All 21 expected competencies are present."
+    },
+    {
+      "level": "PASS",
+      "name": "mastery.thresholds",
+      "message": "All competency mastery thresholds match the curriculum map, including 1-MATH-08 and 1-MATH-20 at 90%."
+    },
+    {
+      "level": "PASS",
+      "name": "mastery.demonstrations",
+      "message": "All 21 competencies require two independent demonstrations."
+    },
+    {
+      "level": "PASS",
+      "name": "mastery.objectives",
+      "message": "All 21 competencies have measurable mastery objectives."
+    },
+    {
+      "level": "PASS",
+      "name": "structure.weeks",
+      "message": "All 36 course weeks are present in sequence."
+    },
+    {
+      "level": "PASS",
+      "name": "structure.week_map",
+      "message": "All 36 week titles, quarters, modes, and mastery flags match the approved map."
+    },
+    {
+      "level": "PASS",
+      "name": "structure.quarters",
+      "message": "Each quarter contains exactly 9 instructional weeks."
+    },
+    {
+      "level": "PASS",
+      "name": "lessons.count",
+      "message": "All 180 daily lessons are present."
+    },
+    {
+      "level": "PASS",
+      "name": "lessons.structure",
+      "message": "All lesson codes, D1–D5 placement, sequence numbers, 30-minute durations, lesson types, and mastery flags are correct."
+    },
+    {
+      "level": "PASS",
+      "name": "lessons.codes",
+      "message": "No malformed D01/D02-style lesson codes were found."
+    },
+    {
+      "level": "PASS",
+      "name": "alignment.lesson_competencies",
+      "message": "Every lesson is linked to the correct competency set for its week."
+    },
+    {
+      "level": "PASS",
+      "name": "content.published",
+      "message": "All 180 lessons have exactly one complete current published content revision."
+    },
+    {
+      "level": "PASS",
+      "name": "content.revision",
+      "message": "All current lesson content is Published r1."
+    },
+    {
+      "level": "PASS",
+      "name": "content.items",
+      "message": "All 180 published lessons contain the expected 15 items (3 guided + 4 independent + 8 worksheet), for 2,700 lesson items total."
+    },
+    {
+      "level": "PASS",
+      "name": "assessments.templates",
+      "message": "All 36 Friday assessment templates are present."
+    },
+    {
+      "level": "PASS",
+      "name": "assessments.template_map",
+      "message": "All assessment templates are attached to the correct Friday lesson with the correct weekly/mastery codes."
+    },
+    {
+      "level": "PASS",
+      "name": "alignment.assessment_competencies",
+      "message": "Every weekly/mastery assessment template is linked to the correct competency set."
+    },
+    {
+      "level": "PASS",
+      "name": "assessments.questions",
+      "message": "All 36 Friday checks contain exactly 10 valid online questions, for 360 assessment items total."
+    },
+    {
+      "level": "PASS",
+      "name": "assessments.question_codes",
+      "message": "All 360 assessment question codes are unique."
+    },
+    {
+      "level": "PASS",
+      "name": "assessments.points",
+      "message": "Every template max_points value matches the sum of its online question points."
+    },
+    {
+      "level": "PASS",
+      "name": "history.deliveries",
+      "message": "All 1 existing Grade 1 Math frozen student lesson deliveries point to a valid published/superseded revision."
+    },
+    {
+      "level": "WARN",
+      "name": "architecture.cumulative_item_mapping",
+      "message": "Cumulative mastery assessments are linked to multiple competencies at the assignment-template level, not per question. The current auto-grader therefore records the same overall cumulative percentage as evidence for every competency linked to that mastery assessment. Weekly evidence still provides competency-specific checks, but item-level competency tagging would make quarterly/year-end mastery evidence more precise."
+    }
+  ],
+  "details": {
+    "course_version": {
+      "id": "8b5a9a1a-c5a0-458f-b431-a959f65f85a8",
+      "organization_id": "348d4992-a6fb-4dc4-9594-25b25987feed",
+      "title": "Grade 1 Mathematics — 2026.1",
+      "status": "draft",
+      "release_status": "draft"
+    },
+    "counts": {
+      "units": 8,
+      "competencies": 21,
+      "weeks": 36,
+      "lessons": 180
+    }
+  }
+}
