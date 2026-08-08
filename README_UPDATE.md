@@ -1,82 +1,72 @@
-# Student Reports + Responsive UI Refresh
+# Course Completion + Independent Subject Progression
 
-This update finishes the reporting feature for students and refreshes the shared
-visual system. It does not add a database migration.
+Migration 012 adds course completion and subject-level progression.
 
-## Student reporting
+## Completion readiness
 
-Students now have:
+The database calculates:
+- active lessons and completed lessons
+- required competencies and mastered competencies
+- weighted current grade and letter grade
+- total recorded instructional minutes
 
-- `Progress & reports` navigation in the student portal
-- a live Current Progress Report generated from their own latest records
-- confirmed attendance totals
+Normal completion requires all active lessons complete and all required
+competencies mastered.
+
+An instructor can explicitly override incomplete requirements, but a reason is
+required and is permanently preserved.
+
+## Completion record
+
+Completing a course creates one immutable completion record that freezes:
+- course code/title
+- course version and curriculum release
+- enrollment start and completion date
+- final grade
+- lesson totals
+- competency totals
 - instructional minutes
-- course grades
-- lesson completion
-- competency progress
-- Print / Save PDF
-- a list of their own instructor-issued official reports
-- read-only access to each official report
-- Print / Save PDF for official reports
+- whether requirements were met
+- whether an override was used
 
-The live report is explicitly marked `Unofficial · live` and does not create a
-permanent report snapshot.
+The source enrollment is closed as completed.
 
-Only an instructor can create an `official` frozen snapshot.
+## Independent progression
 
-Existing RLS already permits a student to SELECT only their own report snapshot
-when its status is `official`, so no broader database access was added.
+After completion, the instructor may:
+- Advance to the next grade-level course in the same subject
+- Accelerate to a higher grade-level course
+- Continue the same course in a new enrollment
+- Repeat the same course
+- End the subject enrollment
 
-## Responsive UI refresh
+The new enrollment may use the current or another planned/active academic-year
+placement for the student.
 
-Shared UI now uses a calmer teal/blue academic palette with stronger text
-contrast and softer warm surfaces.
+The student's official grade placement is never changed by course progression.
 
-Instructor:
-- sticky header
-- mobile horizontal navigation instead of a cramped sidebar
-- desktop sticky sidebar
-- responsive content width and spacing
-- better touch targets
+## Safe test with the current Grade 1 Math student
 
-Student:
-- reusable sticky student header
-- School work / Progress & reports navigation
-- mobile-first cards and forms
-- full-width primary buttons on narrow screens
-- two-column layouts only when enough width is available
+Do not use an override merely to test the write path on a real student.
 
-Reports:
-- one shared report renderer for instructor and student
-- improved phone/tablet layouts
-- clearer attendance and academic sections
-- responsive competency rows
-- print-specific styling
-- official vs unofficial status is visually obvious
+Open:
+Student → Courses & progression → Grade 1 Mathematics
+
+Verify the page shows the real calculated counts and `In progress` /
+`Requirements incomplete`.
+
+Stop there until the course is genuinely ready for completion.
 
 ## Install
 
-No Supabase migration is required.
-
-1. Stop `npm run dev` if that is your normal workflow.
-2. Copy this update into the existing project.
-3. `npm run check:starter`
-4. `npm run typecheck`
-5. `npm run lint`
-6. Restart `npm run dev`
-
-## Test
-
-Student:
-1. Sign in.
-2. Confirm the new `Progress & reports` navigation.
-3. Open `View / Save current report`.
-4. Confirm it says `Unofficial · live`.
-5. Use Print / Save PDF.
-6. Open an existing official report.
-7. Confirm it says `Official`, shows the version and SHA-256, and can be saved as PDF.
-
-Instructor:
-1. Confirm the top/mobile navigation is readable.
-2. Open an existing official report.
-3. Confirm it uses the refreshed report layout.
+1. Commit/push the working student-reporting/UI update first if you have not.
+2. Stop the dev server if desired.
+3. Copy this update into the project.
+4. Run:
+   - `npm run check:starter`
+   - `npm run typecheck`
+   - `npm run lint`
+5. `npx supabase db push --dry-run`
+6. Confirm only `20260808002000_course_completion_progression.sql` is pending.
+7. `npx supabase db push`
+8. Restart `npm run dev`
