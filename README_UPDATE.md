@@ -1,110 +1,151 @@
-# Grade 1 Mathematics — Week 2
+# Grade 1 Mathematics — Production Batch: Weeks 3–7
 
-Week 2 is the second production curriculum package.
+This update scales the proven Week 1–2 curriculum model to five weeks in one
+transaction-safe package.
 
-## Alignment
+## Curriculum coverage
 
-Competency:
+### Week 3 — 1-MATH-03
+Counting Patterns by 2s, 5s, and 10s
 
-`1-MATH-02 — Count forward and backward from different starting numbers`
+- Day 1: count by 10s
+- Day 2: count by 5s
+- Day 3: count by 2s
+- Day 4: identify and apply mixed skip-counting rules
+- Day 5: readiness + 10-question online check
 
-Mastery target:
-- start from teacher-selected numbers within 0–120
-- count forward and backward by ones
-- do not restart at 0 or 1
-- 85% threshold
-- repeated qualifying demonstrations
+### Week 4 — 1-MATH-04
+Tens and Ones I
 
-## Five-day sequence
+- groups of ten and leftover ones
+- identify tens and ones digits
+- compose numerals
+- expanded form
+- foundational Week 4 online check
 
-Day 1 — Learn
-- forward counting from different starting numbers
-- decade transitions through 60
-- counting a stated number of steps
+### Week 5 — 1-MATH-04
+Tens and Ones II
 
-Day 2 — Guided Practice
-- backward counting from different starts
-- decade transitions backward
-- landing-number problems
+- digit value
+- multiple equivalent place-value forms
+- multiples of ten and teen numbers
+- mixed place-value application
+- second independent Week 5 online check
 
-Day 3 — Independent Practice
-- mixed forward/backward direction
-- numbers through 100
-- crossing 99/100
+### Week 6 — 1-MATH-05
+Comparing Two-Digit Numbers I
 
-Day 4 — Apply
-- numbers through 120
-- 99/100, 109/110, 119/120 transitions
-- mixed forward and backward applications
+- meaning of >, <, =
+- compare tens first
+- compare ones when tens match
+- equality and true/false comparisons
+- Week 6 online check
 
-Day 5 — Check
-- readiness review
-- online Week 2 check
+### Week 7 — 1-MATH-05
+Comparing Two-Digit Numbers II
 
-## Online assessment
+- mixed comparisons
+- ordering sets of three numbers
+- explain comparisons with place-value reasoning
+- application contexts
+- second independent Week 7 online check
 
-Migration 017 adds 10 auto-scored Week 2 questions to the existing Friday
-assessment template.
+## Package totals
 
-The assessment checks:
-- forward sequences
-- backward sequences
-- starting from non-1 values
-- counting a stated number of steps
-- crossing 99/100
-- counting backward from values above 100
-- counting through 120
+- 25 published lesson-content revisions
+- 375 guided/independent/worksheet items
+- 5 online assessments
+- 50 auto-scored assessment items
 
-## History protection
+## Safety behavior
 
-Migration 017 aborts if:
-- Week 2 already has published/superseded lesson content
-- Week 2 has already been frozen to a student delivery
-- the Week 2 assessment already has a question bank
+Migration 018 runs all five weeks inside one transaction.
 
-Temporary unpublished Week 2 lesson drafts may be removed so the production
-revision can be installed.
+Before writing anything, it verifies:
+- all 25 expected lesson skeletons exist with D1–D5 codes
+- all five Friday assignment templates exist
+- Weeks 3–7 do not already contain published/superseded lesson content
+- Weeks 3–7 have not already been frozen to a student delivery
+- Weeks 3–7 do not already have assessment question banks
 
-## Install
+If any preflight condition fails, the batch aborts instead of partially installing.
 
-Checkpoint Week 1 first:
+## Install order
+
+First checkpoint the working Week 2 update:
 
 ```bash
 git add .
-git commit -m "Add Grade 1 Math Week 1 production curriculum"
+git commit -m "Add Grade 1 Math Week 2 production curriculum"
 git push
 ```
 
-Copy this update into the project and run:
+Copy the extracted update into the project:
+
+```bash
+cp -R ~/Downloads/homeschool-tracker-grade1-math-weeks3-7-update/. .
+```
+
+Validate:
 
 ```bash
 npm run check:starter
 npm run typecheck
 npm run lint
+```
+
+Expected check output includes:
+
+```text
+Migrations: 18
+Batch QA: Weeks 3–7 / 25 lessons / 50 online assessment items
+Starter structure and Weeks 3–7 static checks passed.
+```
+
+Dry-run:
+
+```bash
 npx supabase db push --dry-run
 ```
 
-Expected pending migration:
+The only pending migration should be:
 
-`20260808007000_grade1_math_week2_content.sql`
+```text
+20260808008000_grade1_math_weeks3_7_content.sql
+```
 
-Then:
+Actual push with full log:
 
 ```bash
-npx supabase db push
+npx supabase db push 2>&1 | tee ~/Desktop/supabase-push-log.txt
+```
+
+Then confirm:
+
+```bash
+npx supabase migration list
+```
+
+The final row should have `20260808008000` in both Local and Remote.
+
+Run:
+
+```bash
 npm run dev
 ```
 
-## Safe test
+## Recommended QA after install
 
-Instructor:
-- Curriculum → Grade 1 Mathematics → Week 2
-- all five lessons should show Published r1
-- open Day 1, Teacher Guide, and Answer Key
+Instructor side only at first:
 
-Student:
-- do not complete Week 1 Day 2 just to reach Week 2
-- Week 2 can be inspected from the instructor side without altering the real
-  student record
-- when the student naturally reaches Week 2, the normal next-lesson flow will
-  deliver the published revision
+1. Grade 1 Math → Weeks 3–7 should each show five `Published r1` lessons.
+2. Spot-check:
+   - Week 3 Day 3 (counting by 2s)
+   - Week 4 Day 4 (expanded form)
+   - Week 5 Day 1 (digit value)
+   - Week 6 Day 3 (same-tens comparison)
+   - Week 7 Day 3 (explain comparison)
+3. Open Teacher Guide and Answer Key on those samples.
+4. Open each Friday Day 5 lesson and verify the readiness content.
+
+Do not artificially advance the real student record just to test later weeks.
