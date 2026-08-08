@@ -1,80 +1,68 @@
-# Permanent Academic Record + Official Transcripts
+# Academic Year Closeout + Grade Promotion + Homeschool Diplomas
 
-Migration 013 completes the first transcript layer.
+Migration 014 adds two permanent-record workflows.
 
-## Instructor
+## Academic-year closeout
 
-Student → Academic record
+Instructor → Student → Year-end closeout
 
-The live academic record shows:
+The review page shows the current official grade placement, completed and unfinished courses, confirmed instructional days/minutes, and official report count.
 
-- student identity
-- academic-year / official-grade placement history
-- confirmed attendance by academic year
-- completed courses from permanent course completion records
-- current / planned coursework
-- current grade for active coursework
-- course grade level, subject, and curriculum version
-- credits when a course actually has credit values
-- cumulative instructional days/minutes
-- cumulative completed/current course counts
+Year-end decisions:
+- Promote
+- Retain
+- Continue
+- Instructor override
+- Graduate when there are no unresolved active/planned courses
 
-`Issue official transcript` recalculates the live record and freezes the exact
-result in `transcript_snapshots`.
+A closeout decision is permanently stored in `grade_level_decisions` with a frozen closeout snapshot.
 
-Each official transcript has:
+For promote/retain/continue/override, the current academic-year placement is closed, the next placement is created, and unfinished subject enrollments are carried forward without changing their course grade level. The source enrollments remain in history as continued/superseded.
 
-- permanent version number
+For Graduate, no next academic-year placement is created and the student is marked graduated. Active/planned courses must already be resolved.
+
+**Do not close the current real 2026–2027 year merely to test the write path.**
+
+## Official homeschool diploma
+
+Instructor → Student → Diploma control
+
+The application intentionally allows an authorized homeschool administrator to issue a diploma for any student. It does not automatically gate issuance by grade level, completed-course count, or credits.
+
+Before issuance, the administrator sees the current academic record and must explicitly attest that they authorize the diploma.
+
+Each issued diploma receives:
+- unique diploma number
+- per-student version number
 - official status
-- SHA-256 JSON snapshot hash
-- issue timestamp
-- immutable snapshot data
-- Print / Save PDF
+- graduation and issue dates
+- diploma title and statement
+- signatory name/title
+- optional honors
+- frozen cumulative academic-record snapshot
+- SHA-256 integrity hash
+- immutable permanent record
+- Print / Save PDF view
 
-Official transcripts may later be voided through a future explicit workflow, but
-they cannot be silently edited or deleted.
+The administrator may choose whether diploma issuance also marks the student as graduated.
 
-## Student
+Students can view and save only their own official diplomas from Academic Record. They cannot issue diplomas.
 
-The student portal now includes `Academic record`.
-
-Students can:
-
-- view their live current academic record
-- Print / Save PDF the live record
-- see official transcripts already issued to them
-- open and Print / Save PDF those official transcripts
-
-Students cannot issue an official transcript.
-
-Existing RLS already restricts transcript snapshots so students can SELECT only
-their own snapshots with `status = 'official'`.
-
-## GPA
-
-This update intentionally does not manufacture an elementary GPA.
-
-Percentage grades, letter grades, and credits are preserved. A cumulative GPA
-will be added only when a high-school grade-point policy is explicitly defined.
+The application does not claim that a software-issued diploma automatically satisfies every outside institution's or jurisdiction's legal requirements.
 
 ## Safe current test
 
-The current Grade 1 Mathematics enrollment has not been completed, so the live
-academic record should show:
+With the current real Grade 1 student:
+1. Open **Year-end closeout** and verify the review values.
+2. Do **not** click the permanent closeout button.
+3. Open **Diploma control** and verify the academic summary and issuance form.
+4. Do **not** issue a diploma merely as a test on the real student.
 
-- 0 completed courses
-- Grade 1 Mathematics under current coursework
-- current grade around 90%
-- current Grade 1 placement
-- current attendance/instructional totals
-
-You may safely issue Transcript Version 1 now if you want to test the official
-snapshot flow. It will truthfully show no completed courses yet and the active
-course as current coursework.
+Use a dedicated test student later if you want to exercise both permanent write paths before year end.
 
 ## Install
 
-1. Commit/push the working Course Completion update first if not already done.
+1. Commit/push the working Transcript update first.
 2. Stop the dev server if desired.
 3. Copy this update into the project.
 4. Run:
@@ -82,6 +70,6 @@ course as current coursework.
    - `npm run typecheck`
    - `npm run lint`
 5. Run `npx supabase db push --dry-run`.
-6. Confirm only `20260808003000_official_transcripts.sql` is pending.
+6. Confirm only `20260808004000_year_closeout_diplomas.sql` is pending.
 7. Run `npx supabase db push`.
 8. Restart `npm run dev`.
