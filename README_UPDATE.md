@@ -1,44 +1,46 @@
-# Grade 1 Mathematics — Production Batch: Weeks 13–17
+# Grade 1 Mathematics — Production Batch: Weeks 18–22
 
 ## Coverage
 
-### Week 13 — 1-MATH-07 Subtraction Within 20 II
-- flexible subtraction strategy use
-- choose efficient strategies
-- mixed subtraction
-- explain subtraction reasoning
-- second independent subtraction check
+### Week 18 — Quarter 2 Mastery Check
+Cumulative review/evidence for:
+- `1-MATH-06` Add within 20
+- `1-MATH-07` Subtract within 20
+- `1-MATH-08` Fact fluency within 10
+- `1-MATH-09` Addition/subtraction relationships
+- `1-MATH-10` One-step word problems
 
-### Week 14 — 1-MATH-08 Fact Fluency Within 10
-- efficient addition facts within 10
-- efficient subtraction facts within 10
-- mixed operation fluency
-- derive facts from known facts
-- fluency check at the competency's configured **90%** threshold
+The Week 18 assessment should be interpreted with the existing per-competency
+thresholds. In particular, `1-MATH-08` retains its 90% threshold.
 
-This week treats fluency as accurate, increasingly efficient recall/derivation.
-It does not turn fluency into a speed-only exercise.
+### Week 19 — `1-MATH-11` Equations and Unknowns I
+- meaning of the equals sign
+- true/false equations
+- result unknowns
+- missing addends
+- unknowns in subtraction
+- first online check
 
-### Week 15 — 1-MATH-09 Addition and Subtraction Relationships
-- fact families
-- use addition to solve subtraction
-- use inverse operations to check answers
-- parts and whole
-- mixed relationship check
+### Week 20 — `1-MATH-11` Equations and Unknowns II
+- unknowns in varied positions
+- inverse operations to solve/check
+- true/false equation repair
+- explain equality reasoning
+- second online check
 
-### Week 16 — 1-MATH-10 One-Step Word Problems I
-- join/result-unknown situations
-- separate/result-unknown situations
-- choose addition vs subtraction
-- identify the unknown and represent the story
-- first online word-problem check
+### Week 21 — `1-MATH-12` Measuring Length I
+- repeated equal-size units
+- end-to-end placement
+- no gaps or overlaps
+- number + unit reporting
+- first online measurement check
 
-### Week 17 — 1-MATH-10 One-Step Word Problems II
-- part-part-whole situations
-- compare situations
-- distinguish all four story structures
-- justify equation/model choices
-- second online word-problem check
+### Week 22 — `1-MATH-12` Measuring Length II
+- independent repeated-unit measurement reasoning
+- effect of unit size on numeric measurement
+- measurement error analysis
+- explain reliable measurement
+- second online measurement check
 
 ## Package totals
 
@@ -47,34 +49,38 @@ It does not turn fluency into a speed-only exercise.
 - 5 online assessments
 - 50 auto-scored assessment items
 
+## Mastery policy
+
+Practical measurement with cubes, paper clips, or other equal units is useful
+instruction and appears as optional activities. It is **not** installed as a
+separate mastery-evidence requirement.
+
+The app's established repeated qualifying evidence model remains authoritative.
+
 ## Historical safety
 
-Migration 020:
-- runs as one transaction
-- validates all 25 lesson skeletons before writing
-- validates all five Friday templates before writing
+Migration 021:
+- runs in one transaction
+- preflights all 25 lesson skeletons before writing
+- checks all five Friday assessment templates
 - refuses to overwrite published/superseded content
 - refuses to rewrite frozen student deliveries
-- refuses to overwrite existing question banks
-
-No separate hands-on mastery requirement is introduced. The content supports
-models, drawings, and explanations instructionally, while mastery continues to
-follow the application's repeated qualifying evidence model.
+- refuses to overwrite existing assessment banks
 
 ## Install
 
-Checkpoint the verified Weeks 8–12 batch:
+Checkpoint the verified Weeks 13–17 batch:
 
 ```bash
 git add .
-git commit -m "Add Grade 1 Math Weeks 8 through 12 production curriculum"
+git commit -m "Add Grade 1 Math Weeks 13 through 17 production curriculum"
 git push
 ```
 
-Copy the extracted package into the project:
+Copy the extracted update into the project:
 
 ```bash
-cp -R ~/Downloads/homeschool-tracker-grade1-math-weeks13-17-update/. .
+cp -R ~/Downloads/homeschool-tracker-grade1-math-weeks18-22-update/. .
 ```
 
 Validate:
@@ -85,14 +91,14 @@ npm run typecheck
 npm run lint
 ```
 
-Expected check output:
+Expected static check:
 
 ```text
-Migrations: 20
-Batch QA: Weeks 13–17 / 25 lessons / 50 online assessment items
-Coverage: subtraction II + fact fluency + inverse relationships + word problems
-Week 14 mastery threshold preserved: 90%
-Starter structure and Weeks 13–17 static checks passed.
+Migrations: 21
+Batch QA: Weeks 18–22 / 25 lessons / 50 online assessment items
+Coverage: Q2 mastery + equations/unknowns + repeated-unit length measurement
+Mastery policy: no separate hands-on evidence requirement
+Starter structure and Weeks 18–22 static checks passed.
 ```
 
 Dry run:
@@ -101,10 +107,10 @@ Dry run:
 npx supabase db push --dry-run
 ```
 
-Expected only:
+Expected pending migration:
 
 ```text
-20260808010000_grade1_math_weeks13_17_content.sql
+20260808011000_grade1_math_weeks18_22_content.sql
 ```
 
 Push:
@@ -119,25 +125,25 @@ Verify:
 npx supabase migration list
 ```
 
-Expected final migration:
+Expected final row:
 
 ```text
-20260808010000 | 20260808010000
+20260808011000 | 20260808011000
 ```
 
 ## Instructor QA
 
-Confirm five `Published r1` lessons in each week 13–17.
+Confirm five `Published r1` lessons in Weeks 18–22.
 
 Spot-check:
-- Week 13 Day 4 — Explain Your Subtraction Strategy
-- Week 14 Day 4 — Derive Facts Efficiently
-- Week 14 Day 5 — Fact Fluency Check
-- Week 15 Day 3 — Check with the Inverse Operation
-- Week 16 Day 3 — Choose the Operation
-- Week 17 Day 2 — Compare Word Problems
-- Week 17 Day 4 — Explain Your Word-Problem Model
+- Week 18 Day 5 — Quarter 2 Mastery Readiness
+- Week 19 Day 1 — What the Equals Sign Means
+- Week 19 Day 4 — Unknowns in Subtraction
+- Week 20 Day 4 — Explain Equation Reasoning
+- Week 21 Day 2 — No Gaps, No Overlaps
+- Week 22 Day 2 — How Unit Size Changes the Count
+- Week 22 Day 4 — Explain a Reliable Measurement
 
-Open Teacher Guide and Answer Key for each sample.
+Open Teacher Guide and Answer Key for each spot-check.
 
-Do not artificially advance the real student just to test later weeks.
+Do not artificially advance the real student to test later weeks.

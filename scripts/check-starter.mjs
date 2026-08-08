@@ -31,12 +31,12 @@ const migrations = existsSync(migrationDir)
   ? readdirSync(migrationDir).filter((f) => f.endsWith(".sql")).sort()
   : [];
 
-if (migrations.length !== 20) {
-  console.error(`Expected 20 migrations, found ${migrations.length}.`);
+if (migrations.length !== 21) {
+  console.error(`Expected 21 migrations, found ${migrations.length}.`);
   failed = true;
 }
 
-const batchName = "20260808010000_grade1_math_weeks13_17_content.sql";
+const batchName = "20260808011000_grade1_math_weeks18_22_content.sql";
 const batchPath = join(migrationDir, batchName);
 
 if (!existsSync(batchPath)) {
@@ -45,7 +45,7 @@ if (!existsSync(batchPath)) {
 } else {
   const sql = readFileSync(batchPath, "utf8");
 
-  for (let week = 13; week <= 17; week++) {
+  for (let week = 18; week <= 22; week++) {
     const ww = String(week).padStart(2, "0");
 
     for (let day = 1; day <= 5; day++) {
@@ -66,30 +66,34 @@ if (!existsSync(batchPath)) {
     }
   }
 
-  if (/1-MATH-W(?:13|14|15|16|17)-D0[1-5]/.test(sql)) {
+  if (/1-MATH-W(?:18|19|20|21|22)-D0[1-5]/.test(sql)) {
     console.error("Found invalid D01–D05 lesson code. Existing skeletons use D1–D5.");
     failed = true;
   }
 
-  const lessonInsertCount = (sql.match(/insert into public\.lesson_content_versions/g) || []).length;
+  const lessonInsertCount =
+    (sql.match(/insert into public\.lesson_content_versions/g) || []).length;
+
   if (lessonInsertCount !== 25) {
     console.error(`Expected 25 lesson-content inserts, found ${lessonInsertCount}.`);
     failed = true;
   }
 
-  const qCodes = [...sql.matchAll(/1-MATH-W(?:13|14|15|16|17)-Q\d{2}/g)].map(m => m[0]);
+  const qCodes =
+    [...sql.matchAll(/1-MATH-W(?:18|19|20|21|22)-Q\d{2}/g)].map(m => m[0]);
+
   if (new Set(qCodes).size !== 50) {
     console.error(`Expected 50 unique assessment codes, found ${new Set(qCodes).size}.`);
     failed = true;
   }
 
-  if (!sql.includes("for v_week in 13..17 loop")) {
-    console.error("Missing Weeks 13–17 preflight loop.");
+  if (!sql.includes("for v_week in 18..22 loop")) {
+    console.error("Missing Weeks 18–22 preflight loop.");
     failed = true;
   }
 
-  if (!sql.includes("90%")) {
-    console.error("Week 14 fact-fluency content should explicitly preserve the 90% threshold.");
+  if (!sql.includes("does not create a separate hands-on mastery requirement")) {
+    console.error("Migration should preserve the established no-separate-hands-on-mastery policy.");
     failed = true;
   }
 }
@@ -97,9 +101,10 @@ if (!existsSync(batchPath)) {
 const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
 console.log(`Starter: ${pkg.name} ${pkg.version}`);
 console.log(`Migrations: ${migrations.length}`);
-console.log("Batch QA: Weeks 13–17 / 25 lessons / 50 online assessment items");
-console.log("Coverage: subtraction II + fact fluency + inverse relationships + word problems");
-console.log("Week 14 mastery threshold preserved: 90%");
+console.log("Batch QA: Weeks 18–22 / 25 lessons / 50 online assessment items");
+console.log("Coverage: Q2 mastery + equations/unknowns + repeated-unit length measurement");
+console.log("Mastery policy: no separate hands-on evidence requirement");
 
 if (failed) process.exit(1);
-console.log("Starter structure and Weeks 13–17 static checks passed.");
+
+console.log("Starter structure and Weeks 18–22 static checks passed.");
