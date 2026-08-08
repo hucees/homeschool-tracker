@@ -6,7 +6,7 @@ const nav = [
   ["Dashboard", "/dashboard"],
   ["Students", "/dashboard/students"],
   ["Daily review", "/dashboard/daily"],
-  ["Curriculum", "/dashboard#curriculum"],
+  ["Curriculum", "/dashboard/curriculum"],
   ["Reports", "/dashboard#reports"],
 ];
 

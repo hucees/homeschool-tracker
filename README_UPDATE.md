@@ -1,75 +1,139 @@
-# Academic Year Closeout + Grade Promotion + Homeschool Diplomas
+# Curriculum Authoring + Versioned Lesson Delivery
 
-Migration 014 adds two permanent-record workflows.
+Migration 015 adds the curriculum-content engine.
 
-## Academic-year closeout
+## Instructor curriculum studio
 
-Instructor → Student → Year-end closeout
+Instructor navigation now points to:
 
-The review page shows the current official grade placement, completed and unfinished courses, confirmed instructional days/minutes, and official report count.
+`Dashboard → Curriculum`
 
-Year-end decisions:
-- Promote
-- Retain
-- Continue
-- Instructor override
-- Graduate when there are no unresolved active/planned courses
+The curriculum studio shows each course and:
+- number of active lessons
+- number of published lesson-content revisions
+- number of current drafts
 
-A closeout decision is permanently stored in `grade_level_decisions` with a frozen closeout snapshot.
+Open a course to see all lessons grouped by instructional week.
 
-For promote/retain/continue/override, the current academic-year placement is closed, the next placement is created, and unfinished subject enrollments are carried forward without changing their course grade level. The source enrollments remain in history as continued/superseded.
+Open a lesson to author:
+- teacher objective
+- student-friendly goal
+- materials
+- vocabulary
+- teacher introduction / warm-up
+- modeling / direct instruction
+- teaching notes
+- student Learn content
+- guided-practice directions
+- independent-practice directions
+- activity
+- structured guided-practice items
+- structured independent-practice items
+- worksheet title/directions/items
+- correct answers and answer explanations
+- completion criteria
+- accommodations
+- enrichment
+- student-safe lesson preview before publishing
 
-For Graduate, no next academic-year placement is created and the student is marked graduated. Active/planned courses must already be resolved.
+## Draft and publish lifecycle
 
-**Do not close the current real 2026–2027 year merely to test the write path.**
+A lesson can have:
+- one current Draft
+- one current Published revision
+- any number of immutable Superseded revisions
 
-## Official homeschool diploma
+Editing a published lesson does not mutate it.
 
-Instructor → Student → Diploma control
+The first Save after publication creates a new draft revision.
 
-The application intentionally allows an authorized homeschool administrator to issue a diploma for any student. It does not automatically gate issuance by grade level, completed-course count, or credits.
+Publishing:
+1. supersedes the old published revision
+2. publishes the current draft
+3. leaves old published data immutable
 
-Before issuance, the administrator sees the current academic record and must explicitly attest that they authorize the diploma.
+## Student lesson delivery
 
-Each issued diploma receives:
-- unique diploma number
-- per-student version number
-- official status
-- graduation and issue dates
-- diploma title and statement
-- signatory name/title
-- optional honors
-- frozen cumulative academic-record snapshot
-- SHA-256 integrity hash
-- immutable permanent record
-- Print / Save PDF view
+Student navigation now includes `Lessons`.
 
-The administrator may choose whether diploma issuance also marks the student as graduated.
+For each active course, the student sees the next unfinished lesson.
 
-Students can view and save only their own official diplomas from Academic Record. They cannot issue diplomas.
+When a student opens a lesson for the first time:
+1. the system finds the current published content revision
+2. it creates a `student_lesson_deliveries` record
+3. that exact revision is permanently tied to the student's enrollment + lesson
 
-The application does not claim that a software-issued diploma automatically satisfies every outside institution's or jurisdiction's legal requirements.
+If the instructor later publishes revision 2, a student who was already
+delivered revision 1 continues to see revision 1.
 
-## Safe current test
+This prevents curriculum edits from silently rewriting instructional history.
 
-With the current real Grade 1 student:
-1. Open **Year-end closeout** and verify the review values.
-2. Do **not** click the permanent closeout button.
-3. Open **Diploma control** and verify the academic summary and issuance form.
-4. Do **not** issue a diploma merely as a test on the real student.
+Students never receive:
+- teacher introduction
+- teacher modeling
+- teaching notes
+- accommodations
+- enrichment
+- student-safe lesson preview before publishing
+- correct answers
+- answer explanations
 
-Use a dedicated test student later if you want to exercise both permanent write paths before year end.
+Students receive:
+- goal
+- materials
+- vocabulary
+- Learn content
+- guided practice
+- independent practice
+- activity
+- worksheet
+- completion criteria
+- item prompts / hints only
+
+## Current safe test
+
+No actual lesson content is seeded by this migration.
+
+After installing:
+
+Instructor:
+1. Open Curriculum.
+2. Open Grade 1 Mathematics.
+3. Open Week 1 Day 1.
+4. Verify the authoring interface loads.
+5. You can save a small temporary Draft safely.
+6. Do not Publish temporary filler content if you do not want the student to receive it.
+
+Student:
+1. Open Lessons.
+2. Grade 1 Math should show the next unfinished lesson.
+3. Open it.
+4. Until content is published, the page should say `Content pending`.
+5. The student can still record lesson completion using the existing academic-work system.
+
+## Next step
+
+After this infrastructure passes, build Grade 1 Math Week 1 as real curriculum:
+- five complete lesson revisions
+- teacher guides
+- student content
+- guided practice
+- independent practice
+- worksheets + answer keys
+- existing Week 1 online assessment
+
+That first week becomes the production template for the remaining 35 weeks.
 
 ## Install
 
-1. Commit/push the working Transcript update first.
+1. Commit/push the working Year Closeout + Diploma feature first.
 2. Stop the dev server if desired.
 3. Copy this update into the project.
 4. Run:
    - `npm run check:starter`
    - `npm run typecheck`
    - `npm run lint`
-5. Run `npx supabase db push --dry-run`.
-6. Confirm only `20260808004000_year_closeout_diplomas.sql` is pending.
-7. Run `npx supabase db push`.
-8. Restart `npm run dev`.
+5. `npx supabase db push --dry-run`
+6. Confirm only `20260808005000_curriculum_authoring_delivery.sql` is pending.
+7. `npx supabase db push`
+8. Restart `npm run dev`

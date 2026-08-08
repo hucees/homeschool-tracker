@@ -4,6 +4,7 @@ import { studentSignOut } from "@/app/student/actions";
 
 const nav = [
   ["School work", "/student"],
+  ["Lessons", "/student/lessons"],
   ["Progress & reports", "/student/progress"],
   ["Academic record", "/student/academic-record"],
 ];
