@@ -1,70 +1,83 @@
-# Grade 1 Mathematics — Production Batch: Weeks 23–27
+# Grade 1 Mathematics — Production Batch: Weeks 28–32
 
 ## Coverage
 
-### Week 23 — `1-MATH-13` Compare and Order Lengths
-- direct comparison
-- indirect comparison using a common reference
-- order three lengths
-- longer / shorter / same-length language
-- Week 23 online check
+### Week 28 — `1-MATH-15` Organizing and Interpreting Data
+- sort data into categories
+- count each category
+- read simple tables
+- how many more / fewer
+- totals
+- online check
 
-### Week 24 — `1-MATH-14` Time to the Hour
-- hour hand vs minute hand
-- read exact-hour analog descriptions
-- write digital `:00` times
-- match analog descriptions, digital time, and words
-- first time check
+### Week 29 — `1-MATH-16` Representing Data
+- one-for-one picture representations
+- complete simple graphs
+- interpret graph counts
+- create/describe simple data displays
+- online check
 
-### Week 25 — `1-MATH-14` Time to the Half-Hour
-- 30 minutes / half-hour
-- minute hand on 6
-- hour hand halfway toward the next hour
-- write digital `:30` times
-- half-hour check
+### Week 30 — `1-MATH-17` 2D and 3D Shapes
+- defining attributes of common 2D shapes
+- defining attributes of common 3D shapes
+- sides, vertices, faces, curved surfaces
+- compose larger shapes from smaller shapes
+- online check
 
-### Week 26 — `1-MATH-14` Mixed Hour and Half-Hour
-- mixed `:00` / `:30`
-- analog/digital reasoning
-- simple schedule use
-- explain clock-hand positions
-- additional independent time evidence
+### Week 31 — `1-MATH-18` Halves and Fourths
+- whole and equal shares
+- halves
+- fourths / quarters
+- distinguish equal from unequal partitions
+- compare one half and one fourth of the same whole
+- online check
 
-### Week 27 — Quarter 3 Mastery Check
-Cumulative review for:
-- `1-MATH-11` equations and unknowns
-- `1-MATH-12` repeated-unit measurement
-- `1-MATH-13` compare/order lengths
-- `1-MATH-14` tell/write time
+### Week 32 — `1-MATH-19` Adding Within 100 I
+- two-digit + one-digit
+- two-digit + multiple of 10
+- explain which place changes
+- tens/ones reasoning
+- first addition-within-100 online check
+
+Week 33 continues `1-MATH-19`.
 
 ## Totals
+
 - 25 production lessons
 - 375 lesson items
 - 50 online assessment items
 
+## Mastery policy
+
+Optional sorting, graph drawing, shape building, folding, and base-ten modeling are
+included as instructional activities. They do **not** create a separate hands-on
+mastery-evidence requirement. The existing repeated qualifying evidence model
+remains authoritative.
+
 ## Safety
-Migration 022:
-- one transaction
-- preflights all Weeks 23–27 lessons/templates
+
+Migration 023:
+- runs in one transaction
+- preflights every Week 28–32 lesson skeleton
+- preflights every Friday assignment template
 - refuses to overwrite published/superseded content
 - refuses to rewrite frozen student deliveries
-- refuses to overwrite existing assessment banks
-- introduces no separate hands-on mastery requirement
+- refuses to overwrite existing question banks
 
 ## Install
 
-Checkpoint Weeks 18–22 first:
+Checkpoint Weeks 23–27:
 
 ```bash
 git add .
-git commit -m "Add Grade 1 Math Weeks 18 through 22 production curriculum"
+git commit -m "Add Grade 1 Math Weeks 23 through 27 production curriculum"
 git push
 ```
 
-Copy the extracted package:
+Copy this package into the project:
 
 ```bash
-cp -R ~/Downloads/homeschool-tracker-grade1-math-weeks23-27-update/. .
+cp -R ~/Downloads/homeschool-tracker-grade1-math-weeks28-32-update/. .
 ```
 
 Validate:
@@ -78,11 +91,11 @@ npm run lint
 Expected static check:
 
 ```text
-Migrations: 22
-Batch QA: Weeks 23–27 / 25 lessons / 50 online assessment items
-Coverage: compare/order lengths + hour/half-hour time + Q3 mastery
+Migrations: 23
+Batch QA: Weeks 28–32 / 25 lessons / 50 online assessment items
+Coverage: data + graphs + shapes + halves/fourths + addition within 100 I
 Mastery policy: no separate hands-on evidence requirement
-Starter structure and Weeks 23–27 static checks passed.
+Starter structure and Weeks 28–32 static checks passed.
 ```
 
 Dry run:
@@ -94,7 +107,7 @@ npx supabase db push --dry-run
 Expected pending migration:
 
 ```text
-20260808012000_grade1_math_weeks23_27_content.sql
+20260808013000_grade1_math_weeks28_32_content.sql
 ```
 
 Push:
@@ -112,16 +125,20 @@ npx supabase migration list
 Expected final row:
 
 ```text
-20260808012000 | 20260808012000
+20260808013000 | 20260808013000
 ```
 
 ## Instructor QA
 
-Spot-check:
-- Week 23 Day 3 — Order Three Lengths
-- Week 24 Day 3 — Match Analog, Digital, and Words
-- Week 25 Day 2 — Read Half-Hour Times
-- Week 26 Day 2 — Time in a Daily Schedule
-- Week 27 Day 5 — Quarter 3 Mastery Readiness
+Confirm five `Published r1` lessons in each of Weeks 28–32.
 
-Confirm `Published r1`, lesson content, Teacher Guide, and Answer Key.
+Spot-check:
+- Week 28 Day 3 — Compare Data Categories
+- Week 29 Day 3 — Create a Simple Data Display
+- Week 30 Day 3 — Compose Larger Shapes
+- Week 31 Day 4 — Equal Shares Matter
+- Week 32 Day 3 — Explain How Tens and Ones Change
+
+For each spot-check, open the lesson, Teacher Guide, and Answer Key.
+
+Do not artificially advance the real student to later weeks merely for testing.
