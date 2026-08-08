@@ -5,6 +5,7 @@ import { studentSignOut } from "@/app/student/actions";
 const nav = [
   ["School work", "/student"],
   ["Progress & reports", "/student/progress"],
+  ["Academic record", "/student/academic-record"],
 ];
 
 export function StudentShell({

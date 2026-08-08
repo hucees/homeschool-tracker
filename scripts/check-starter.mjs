@@ -12,15 +12,15 @@ const required = [
   "src/app/dashboard/students/[studentId]/gradebook/page.tsx",
   "src/app/dashboard/students/[studentId]/progress/page.tsx",
   "src/app/dashboard/students/[studentId]/courses/[enrollmentId]/page.tsx",
-  "src/app/dashboard/students/[studentId]/reports/[reportId]/page.tsx",
+  "src/app/dashboard/students/[studentId]/transcript/page.tsx",
+  "src/app/dashboard/students/[studentId]/transcripts/[transcriptId]/page.tsx",
   "src/app/student/page.tsx",
   "src/app/student/progress/page.tsx",
-  "src/app/student/reports/[reportId]/page.tsx",
-  "src/app/student/assessments/[assignmentId]/page.tsx",
-  "src/components/student-shell.tsx",
-  "src/components/progress-report-document.tsx",
+  "src/app/student/academic-record/page.tsx",
+  "src/app/student/transcripts/[transcriptId]/page.tsx",
+  "src/components/transcript-document.tsx",
+  "src/lib/student-transcript.ts",
   "src/lib/student-progress.ts",
-  "src/lib/supabase/server.ts",
   "src/proxy.ts",
   "supabase/migrations",
 ];
@@ -38,8 +38,8 @@ const migrations = existsSync(migrationDir)
   ? readdirSync(migrationDir).filter((f) => f.endsWith(".sql")).sort()
   : [];
 
-if (migrations.length !== 12) {
-  console.error(`Expected 12 migrations, found ${migrations.length}.`);
+if (migrations.length !== 13) {
+  console.error(`Expected 13 migrations, found ${migrations.length}.`);
   failed = true;
 }
 
@@ -48,9 +48,14 @@ console.log(`Starter: ${packageJson.name} ${packageJson.version}`);
 console.log(`Migrations: ${migrations.length}`);
 console.log(migrations.map((m) => `  - ${m}`).join("\n"));
 
-const suspiciousFiles = readdirSync(root).filter((name) => name === ".env.local" || name === ".env.production");
+const suspiciousFiles = readdirSync(root).filter(
+  (name) => name === ".env.local" || name === ".env.production"
+);
+
 if (suspiciousFiles.length) {
-  console.error(`Secret-bearing environment files should not be shipped: ${suspiciousFiles.join(", ")}`);
+  console.error(
+    `Secret-bearing environment files should not be shipped: ${suspiciousFiles.join(", ")}`
+  );
   failed = true;
 }
 
