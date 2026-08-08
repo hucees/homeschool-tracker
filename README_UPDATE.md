@@ -1,45 +1,44 @@
-# Grade 1 Mathematics — Production Batch: Weeks 8–12
+# Grade 1 Mathematics — Production Batch: Weeks 13–17
 
 ## Coverage
 
-### Week 8 — Quarter 1 Spiral Review
-Reviews:
-- 1-MATH-01 Numbers to 120
-- 1-MATH-02 Count forward/backward from varied starting points
-- 1-MATH-03 Patterns by 2s, 5s, 10s
-- 1-MATH-04 Tens and ones
-- 1-MATH-05 Compare two-digit numbers
-
-The daily sequence deliberately isolates skill families on Days 1–4 and mixes
-them on Day 5 so weak areas can be identified before mastery week.
-
-### Week 9 — Quarter 1 Mastery Check
-Cumulative evidence across 1-MATH-01 through 1-MATH-05.
-
-Days 1–4 are more independent than a normal teaching week. Day 5 is the
-cumulative online mastery check. The result should be interpreted alongside
-the competency evidence already accumulated during Weeks 1–8.
-
-### Week 10 — 1-MATH-06 Addition Within 20 I
-- addition as putting together
-- counting on
-- doubles / near doubles
-- make ten
-- first online addition check
-
-### Week 11 — 1-MATH-06 Addition Within 20 II
-- decompose to make ten
+### Week 13 — 1-MATH-07 Subtraction Within 20 II
+- flexible subtraction strategy use
 - choose efficient strategies
-- mixed addition within 20
-- explain a strategy
-- second online addition check
+- mixed subtraction
+- explain subtraction reasoning
+- second independent subtraction check
 
-### Week 12 — 1-MATH-07 Subtraction Within 20 I
-- subtraction as take away
-- count back
-- count on to find a difference
-- decompose/use 10 as a stopping point
-- first online subtraction check
+### Week 14 — 1-MATH-08 Fact Fluency Within 10
+- efficient addition facts within 10
+- efficient subtraction facts within 10
+- mixed operation fluency
+- derive facts from known facts
+- fluency check at the competency's configured **90%** threshold
+
+This week treats fluency as accurate, increasingly efficient recall/derivation.
+It does not turn fluency into a speed-only exercise.
+
+### Week 15 — 1-MATH-09 Addition and Subtraction Relationships
+- fact families
+- use addition to solve subtraction
+- use inverse operations to check answers
+- parts and whole
+- mixed relationship check
+
+### Week 16 — 1-MATH-10 One-Step Word Problems I
+- join/result-unknown situations
+- separate/result-unknown situations
+- choose addition vs subtraction
+- identify the unknown and represent the story
+- first online word-problem check
+
+### Week 17 — 1-MATH-10 One-Step Word Problems II
+- part-part-whole situations
+- compare situations
+- distinguish all four story structures
+- justify equation/model choices
+- second online word-problem check
 
 ## Package totals
 
@@ -48,31 +47,34 @@ the competency evidence already accumulated during Weeks 1–8.
 - 5 online assessments
 - 50 auto-scored assessment items
 
-## Safety
+## Historical safety
 
-Migration 019 uses one transaction and performs a complete preflight before
-writing any lesson content. It refuses to overwrite:
-- published/superseded lesson revisions
-- frozen student deliveries
-- existing Week 8–12 question banks
+Migration 020:
+- runs as one transaction
+- validates all 25 lesson skeletons before writing
+- validates all five Friday templates before writing
+- refuses to overwrite published/superseded content
+- refuses to rewrite frozen student deliveries
+- refuses to overwrite existing question banks
 
-The static starter check also rejects the D01–D05 lesson-code bug encountered
-during the first production content install.
+No separate hands-on mastery requirement is introduced. The content supports
+models, drawings, and explanations instructionally, while mastery continues to
+follow the application's repeated qualifying evidence model.
 
 ## Install
 
-Checkpoint the verified Weeks 3–7 batch first:
+Checkpoint the verified Weeks 8–12 batch:
 
 ```bash
 git add .
-git commit -m "Add Grade 1 Math Weeks 3 through 7 production curriculum"
+git commit -m "Add Grade 1 Math Weeks 8 through 12 production curriculum"
 git push
 ```
 
-Then copy this update into the project:
+Copy the extracted package into the project:
 
 ```bash
-cp -R ~/Downloads/homeschool-tracker-grade1-math-weeks8-12-update/. .
+cp -R ~/Downloads/homeschool-tracker-grade1-math-weeks13-17-update/. .
 ```
 
 Validate:
@@ -83,13 +85,14 @@ npm run typecheck
 npm run lint
 ```
 
-Expected:
+Expected check output:
 
 ```text
-Migrations: 19
-Batch QA: Weeks 8–12 / 25 lessons / 50 online assessment items
-Coverage: Q1 spiral review + Q1 mastery + addition within 20 + subtraction intro
-Starter structure and Weeks 8–12 static checks passed.
+Migrations: 20
+Batch QA: Weeks 13–17 / 25 lessons / 50 online assessment items
+Coverage: subtraction II + fact fluency + inverse relationships + word problems
+Week 14 mastery threshold preserved: 90%
+Starter structure and Weeks 13–17 static checks passed.
 ```
 
 Dry run:
@@ -101,33 +104,40 @@ npx supabase db push --dry-run
 Expected only:
 
 ```text
-20260808009000_grade1_math_weeks8_12_content.sql
+20260808010000_grade1_math_weeks13_17_content.sql
 ```
 
-Actual push with full logging:
+Push:
 
 ```bash
 npx supabase db push 2>&1 | tee ~/Desktop/supabase-push-log.txt
 ```
 
-Then:
+Verify:
 
 ```bash
 npx supabase migration list
-npm run dev
 ```
 
-## Instructor-side QA
+Expected final migration:
 
-Confirm five Published r1 lessons in every week from 8 through 12.
+```text
+20260808010000 | 20260808010000
+```
+
+## Instructor QA
+
+Confirm five `Published r1` lessons in each week 13–17.
 
 Spot-check:
-- Week 8 Day 5 — mixed Quarter 1 spiral review
-- Week 9 Day 5 — cumulative mastery readiness
-- Week 10 Day 4 — make-ten addition
-- Week 11 Day 4 — explain an addition strategy
-- Week 12 Day 3 — count on to find a subtraction difference
+- Week 13 Day 4 — Explain Your Subtraction Strategy
+- Week 14 Day 4 — Derive Facts Efficiently
+- Week 14 Day 5 — Fact Fluency Check
+- Week 15 Day 3 — Check with the Inverse Operation
+- Week 16 Day 3 — Choose the Operation
+- Week 17 Day 2 — Compare Word Problems
+- Week 17 Day 4 — Explain Your Word-Problem Model
 
 Open Teacher Guide and Answer Key for each sample.
 
-Do not artificially advance the real student just to reach these weeks.
+Do not artificially advance the real student just to test later weeks.
